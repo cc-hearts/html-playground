@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { usePrefixCls } from "@/hooks";
 import { GithubIcon } from "@/icons";
+import { githubUrl } from "@/configs";
 import ToggleDark from "@/components/switch/toggleDark.vue";
 const headerCls = usePrefixCls("header");
+
+const toGithub = () => {
+  if (githubUrl) window.open(githubUrl);
+};
 </script>
 
 <template>
@@ -12,7 +17,7 @@ const headerCls = usePrefixCls("header");
     </slot>
     <div class="flex text-2xl items-center" :class="[`${headerCls}__icon`]">
       <slot name="right-icon"></slot>
-      <GithubIcon />
+      <GithubIcon @click="toGithub" />
       <ToggleDark />
     </div>
   </header>
