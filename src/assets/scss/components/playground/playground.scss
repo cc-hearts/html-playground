@@ -2,6 +2,7 @@
   @if $isShowWidth {
     min-width: 1rem !important;
   }
+
   min-height: 1rem !important;
 }
 
@@ -9,7 +10,7 @@
   width: 100%;
   height: 100%;
 
-  &--vertical > &__splitter {
+  &--vertical>&__splitter {
     @include splitLayout;
   }
 
@@ -17,15 +18,19 @@
     &.default-theme &__pane {
       background-color: transparent;
     }
+
     &.default-theme &__splitter {
       background-color: transparent;
       border: none;
+
       &::after,
       &::before {
         background-color: var(--color-text-3);
         transition: background-color 0.2s ease;
       }
+
       &:hover {
+
         &::after,
         &::before {
           background-color: var(--color-text-1);
@@ -33,7 +38,7 @@
       }
     }
 
-    &--horizontal > &__splitter {
+    &--horizontal>&__splitter {
       @include splitLayout(false);
     }
   }

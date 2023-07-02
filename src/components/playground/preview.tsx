@@ -50,7 +50,7 @@ export default defineComponent({
           <div id="app">
             ${props.html}
           </div>
-          <script>
+          <script type="module">
             ${props.script}
           </script>
         </body>

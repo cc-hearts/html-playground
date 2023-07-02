@@ -37,19 +37,23 @@ interface viewInstance {
   };
 }
 let view: EditorView;
-let lang = javascript;
+let lang = () => javascript({
+  typescript: true,
+  jsx: true
+});
 
 const emits = defineEmits<{
   (event: "change", value: string): void;
 }>();
 switch (props.lang) {
   case "css":
-    lang = css;
+    lang = () => css();
     break;
   case "html":
     // @ts-ignore
-    lang = html;
+    lang = () => html();
 }
+
 const cls = usePrefixCls("code");
 
 watch(isDark, () => {
@@ -140,6 +144,7 @@ defineExpose({
 
 <style lang="scss">
 @use "@/assets/scss/var/variable.scss" as var;
+
 .code-mirror {
   width: 100%;
   height: 100%;
