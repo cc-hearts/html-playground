@@ -1,2 +1,2 @@
 // import { EditorView, basicSetup } from "codemirror";
-export {};
+export {}

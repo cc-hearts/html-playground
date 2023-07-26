@@ -1,31 +1,68 @@
-import { defineComponent, watch, ref } from "vue";
-import "@/assets/scss/components/playground/preview.scss";
-import { useDebounce } from "@/hooks/useDebounce";
-import { isDark } from "@/configs";
+import { defineComponent, watch, ref } from 'vue'
+import '@/assets/scss/components/playground/preview.scss'
+import { useDebounce } from '@/hooks/useDebounce'
+import { isDark } from '@/configs'
 export default defineComponent({
-  name: "Preview",
+  name: 'Preview',
   props: {
     html: {
       type: String,
-      default: "",
-    },
-    script: {
-      type: String,
-      default: "",
+      default: '',
     },
     style: {
       type: String,
-      default: "",
+      default: '',
+    },
+    compileModule: {
+      type: Object,
+      default: () => ({}),
+    },
+    entry: {
+      type: String,
+      default: 'app.js',
     },
   },
   setup(props) {
-    const srcDoc = ref("");
+    const srcDoc = ref('')
     function getBackground() {
-      return getComputedStyle(document.body).backgroundColor;
+      return getComputedStyle(document.body).backgroundColor
     }
     function getColor() {
-      return getComputedStyle(document.body).color;
+      return getComputedStyle(document.body).color
     }
+
+    const funcModule = new Function(
+      'code',
+      'entry',
+      `
+      function __require(keys) {
+        if (__exports._map[keys]) {
+          return __exports._map[keys];
+        }
+        const func = __require._map[keys];
+        if (func instanceof Function) {
+          func(__require, __exports);
+          return __exports._map[keys] || {};
+        }
+        return {};
+      }
+      __require._map = {};
+
+     function __exports(fileName, type, value) {
+          if (!__exports._map[fileName]) {
+            __exports._map[fileName] = {};
+          }
+          __exports._map[fileName][type] = value;
+        }
+        __exports._map = {};
+
+        Object.keys(code).forEach(keys => {
+          __require._map[keys] = new Function( "__require", "__exports",code[keys])
+        })
+
+        __require._map[entry](__require,__exports)
+    `,
+    )
 
     const updateSrcDoc = () => {
       srcDoc.value = `
@@ -51,21 +88,25 @@ export default defineComponent({
             ${props.html}
           </div>
           <script type="module">
-            ${props.script}
+            ${funcModule(props.compileModule, props.entry)}
           </script>
         </body>
       </html>
-    `;
-    };
-    const updateSrcDebounce = useDebounce(updateSrcDoc);
-    watch([() => props.html, () => props.script, () => props.style], () => {
-      updateSrcDebounce();
-    });
-    watch(() => isDark.value, updateSrcDoc);
+    `
+    }
+    const updateSrcDebounce = useDebounce(updateSrcDoc)
+    watch(
+      [() => props.html, () => props.style, () => props.compileModule],
+      () => {
+        updateSrcDebounce()
+      },
+    )
+    watch(() => isDark.value, updateSrcDoc)
     return () => (
-      <div class="preview w-full h-full">
-        <iframe class="w-full h-full" srcdoc={srcDoc.value} />
-      </div>
-    );
+      <div></div>
+      // <div class="preview w-full h-full">
+      //   <iframe class="w-full h-full" srcdoc={srcDoc.value} />
+      // </div>
+    )
   },
-});
+})

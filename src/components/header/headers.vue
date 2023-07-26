@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { usePrefixCls } from "@/hooks";
-import { GithubIcon } from "@/icons";
-import { githubUrl } from "@/configs";
-import ToggleDark from "@/components/switch/toggleDark.vue";
-const headerCls = usePrefixCls("header");
+import { usePrefixCls } from '@/hooks'
+import { GithubIcon } from '@/icons'
+import { githubUrl } from '@/configs'
+import ToggleDark from '@/components/switch/toggleDark.vue'
+const headerCls = usePrefixCls('header')
 
 const toGithub = () => {
-  if (githubUrl) window.open(githubUrl);
-};
+  if (githubUrl) window.open(githubUrl)
+}
 </script>
 
 <template>
@@ -24,7 +24,7 @@ const toGithub = () => {
 </template>
 
 <style lang="scss">
-@use "@/assets/scss/var/variable.scss" as var;
+@use '@/assets/scss/var/variable.scss' as var;
 
 .#{var.$prefixCls}-header {
   height: 60px;

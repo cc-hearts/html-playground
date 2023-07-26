@@ -13,7 +13,7 @@
     "noEmit": true,
     "jsx": "preserve",
     /* Linting */
-    "strict": true,
+    "strict": false,
     "allowJs": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

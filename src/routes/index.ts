@@ -1,3 +1,3 @@
-import constantRouter from "./constantRouter";
+import constantRouter from './constantRouter'
 
-export default [...constantRouter];
+export default [...constantRouter]
