@@ -1,6 +1,6 @@
 <template>
   <svg
-    @click="onClick"
+    @click="handleClick"
     class="ml-2 cursor-pointer hover:color-red transition"
     xmlns="http://www.w3.org/2000/svg"
     width="1.5em"
@@ -20,8 +20,15 @@ export default {
   props: {
     onClick: {
       type: Function,
-      default: () => {},
+      default: () => ({}),
     },
+  },
+  setup(props) {
+    const handleClick = () => {
+      props.onClick?.()
+    }
+
+    return { handleClick }
   },
 }
 </script>

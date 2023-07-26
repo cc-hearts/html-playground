@@ -29,7 +29,7 @@ export default defineComponent({
 
     const handleChangeCompileModule = useDebounce(async () => {
       const newCode = await transFormCode(Object.fromEntries(scriptModule))
-      compileModule.value = newCode
+      Reflect.set(compileModule, 'value', newCode)
     }, 500)
     const handleChangeScripts = async (event: string) => {
       scriptModule.set(currentPage.value, event)
