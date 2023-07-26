@@ -2,13 +2,13 @@ import babel from '@babel/core'
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function traverseScriptCode(code: Record<string, string | Function>) {
   return Object.keys(code).reduce((acc, keys) => {
-    const newCode = transform(code[keys], keys) || ''
-    acc[keys] = newCode
+    const newCode = transform(code[keys] as string, keys) || ''
+    Reflect.set(acc, keys, newCode)
     return acc
   }, {})
 }
 
-export function transform(code, fileName = '') {
+export function transform(code: string, fileName = '') {
   const ast = babel.parse(code, {
     sourceType: 'module',
   })

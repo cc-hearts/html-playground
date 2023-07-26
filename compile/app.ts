@@ -8,13 +8,12 @@ app.use(bodyParser.json())
 
 // Define a route
 app.post('/', (req, res) => {
-  console.log(req.body)
   const code = req.body
   const newCode = traverseScriptCode(code)
   res.json(newCode)
 })
 
 // Start the server
-app.listen(3000, () => {
-  console.log('Server is running on port 3000')
+app.listen(30083, () => {
+  console.log('Server is running on port 30083')
 })
