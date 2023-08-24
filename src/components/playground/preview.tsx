@@ -1,4 +1,4 @@
-import { defineComponent, watch, ref, compile } from 'vue'
+import { defineComponent, watch, ref } from 'vue'
 import '@/assets/scss/components/playground/preview.scss'
 import { useDebounce } from '@/hooks/useDebounce'
 import { isDark } from '@/configs'
