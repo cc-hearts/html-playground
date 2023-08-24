@@ -1,4 +1,4 @@
-import { defineComponent, watch, ref } from 'vue'
+import { defineComponent, watch, ref, compile } from 'vue'
 import '@/assets/scss/components/playground/preview.scss'
 import { useDebounce } from '@/hooks/useDebounce'
 import { isDark } from '@/configs'
@@ -31,40 +31,41 @@ export default defineComponent({
       return getComputedStyle(document.body).color
     }
 
-    const funcModule = new Function(
-      'code',
-      'entry',
-      `
-      function __require(keys) {
-        if (__exports._map[keys]) {
-          return __exports._map[keys];
-        }
-        const func = __require._map[keys];
-        if (func instanceof Function) {
-          func(__require, __exports);
-          return __exports._map[keys] || {};
-        }
-        return {};
-      }
-      __require._map = {};
+    // const funcModule = new Function(
+    //   'code',
+    //   'entry',
+    //   `
+    //   function __require(keys) {
+    //     if (__exports._map[keys]) {
+    //       return __exports._map[keys];
+    //     }
+    //     const func = __require._map[keys];
+    //     if (func instanceof Function) {
+    //       func(__require, __exports);
+    //       return __exports._map[keys] || {};
+    //     }
+    //     return {};
+    //   }
+    //   __require._map = {};
 
-     function __exports(fileName, type, value) {
-          if (!__exports._map[fileName]) {
-            __exports._map[fileName] = {};
-          }
-          __exports._map[fileName][type] = value;
-        }
-        __exports._map = {};
+    //  function __exports(fileName, type, value) {
+    //       if (!__exports._map[fileName]) {
+    //         __exports._map[fileName] = {};
+    //       }
+    //       __exports._map[fileName][type] = value;
+    //     }
+    //     __exports._map = {};
 
-        Object.keys(code).forEach(keys => {
-          __require._map[keys] = new Function( "__require", "__exports",code[keys])
-        })
+    //     Object.keys(code).forEach(keys => {
+    //       __require._map[keys] = new Function( "__require", "__exports",code[keys])
+    //     })
 
-        __require._map[entry](__require,__exports)
-    `,
-    )
+    //     __require._map[entry](__require,__exports)
+    // `,
+    // )
 
     const updateSrcDoc = () => {
+      const code = JSON.stringify(props.compileModule)
       srcDoc.value = `
       <!DOCTYPE html>
       <html lang="en">
@@ -84,16 +85,42 @@ export default defineComponent({
           </style>
         </head>
         <body>
-          <div id="app">
+          <div id="app-iframe">
             ${props.html}
           </div>
           <script type="module">
-            ${funcModule(props.compileModule, props.entry)}
+          function __require(keys) {
+            if (__exports._map[keys]) {
+              return __exports._map[keys];
+            }
+            const func = __require._map[keys];
+            if (func instanceof Function) {
+              func(__require, __exports);
+              return __exports._map[keys] || {};
+            }
+            return {};
+          }
+          __require._map = {};
+
+          function __exports(fileName, type, value) {
+            if (!__exports._map[fileName]) {
+              __exports._map[fileName] = {};
+            }
+            __exports._map[fileName][type] = value;
+          }
+          __exports._map = {};
+          const code = ${code}
+          const entry = "${props.entry}"
+          Object.keys(code).forEach(keys => {
+            __require._map[keys] = new Function("__require", "__exports", code[keys])
+          })
+          __require._map[entry](__require, __exports)
           </script>
         </body>
       </html>
     `
     }
+
     const updateSrcDebounce = useDebounce(updateSrcDoc)
     watch(
       [() => props.html, () => props.style, () => props.compileModule],
@@ -103,10 +130,9 @@ export default defineComponent({
     )
     watch(() => isDark.value, updateSrcDoc)
     return () => (
-      <div></div>
-      // <div class="preview w-full h-full">
-      //   <iframe class="w-full h-full" srcdoc={srcDoc.value} />
-      // </div>
+      <div class="preview w-full h-full">
+        <iframe sandbox="allow-scripts" class="w-full h-full" srcdoc={srcDoc.value} />
+      </div>
     )
   },
 })
