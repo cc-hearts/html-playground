@@ -131,7 +131,11 @@ export default defineComponent({
     watch(() => isDark.value, updateSrcDoc)
     return () => (
       <div class="preview w-full h-full">
-        <iframe sandbox="allow-scripts" class="w-full h-full" srcdoc={srcDoc.value} />
+        <iframe
+          sandbox="allow-scripts"
+          class="w-full h-full"
+          srcdoc={srcDoc.value}
+        />
       </div>
     )
   },

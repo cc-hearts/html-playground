@@ -1,8 +1,18 @@
 import { Splitpanes, Pane } from 'splitpanes'
-import { Ref, computed, defineComponent, onMounted, reactive, ref, nextTick, watch, VNodeRef } from 'vue'
+import {
+  Ref,
+  computed,
+  defineComponent,
+  onMounted,
+  reactive,
+  ref,
+  nextTick,
+  watch,
+} from 'vue'
 import '@/assets/scss/components/playground/playground.scss'
 import CodeMirror from '@/components/codeMirror/index.vue'
 import Preview from './preview'
+import { RemoveIcon } from '@/icons'
 import Card from '@/components/Card/Container'
 import Add from '@/icons/add.vue'
 import { transFormCode } from './compileApi'
@@ -45,20 +55,36 @@ export default defineComponent({
           value += '.js'
         }
         scriptModule.set(value, `// ${value}`)
-
       }
     }
 
-    watch(() => isAddScriptVisible.value, (bool) => {
-      if (bool) {
-        nextTick(() => {
-          const el = addScriptTagRef.value
-          if (el) {
-            el.focus?.()
+    const handleRemoveTag = (name: string, e: MouseEvent) => {
+      if (scriptModule.has(name)) {
+        if (currentPage.value === name) {
+          const ind = scriptNames.value.findIndex((val) => val === name)
+          if (ind !== 0) {
+            currentPage.value = scriptNames.value[ind - 1]
           }
-        })
+        }
+        scriptModule.delete(name)
+        handleChangeCompileModule()
+        e.stopPropagation()
       }
-    })
+    }
+
+    watch(
+      () => isAddScriptVisible.value,
+      (bool) => {
+        if (bool) {
+          nextTick(() => {
+            const el = addScriptTagRef.value
+            if (el) {
+              el.focus?.()
+            }
+          })
+        }
+      },
+    )
 
     const handlerKeydownEnter = (e: KeyboardEvent) => {
       if (e.key === 'Enter') handleBlur(e)
@@ -96,12 +122,21 @@ export default defineComponent({
                             return (
                               <span
                                 onClick={() => handleChangeCurrentScripts(val)}
-                                class={`script-tag ${currentPage.value === val
-                                  ? 'active-script'
-                                  : ''
-                                  }`}
+                                class={`script-tag relative ${
+                                  currentPage.value === val
+                                    ? 'active-script'
+                                    : ''
+                                }`}
                               >
                                 {val}
+                                {val === 'app.js' ? null : (
+                                  <RemoveIcon
+                                    class="absolute top-3px right--2px"
+                                    onClick={(e: MouseEvent) =>
+                                      handleRemoveTag(val, e)
+                                    }
+                                  />
+                                )}
                               </span>
                             )
                           })}
@@ -109,7 +144,8 @@ export default defineComponent({
                         {isAddScriptVisible.value && (
                           <input
                             ref={(ref) => {
-                              if (ref instanceof HTMLInputElement) addScriptTagRef.value = ref
+                              if (ref instanceof HTMLInputElement)
+                                addScriptTagRef.value = ref
                             }}
                             autofocus
                             class="add-script-tag"
