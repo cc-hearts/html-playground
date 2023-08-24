@@ -1,5 +1,5 @@
 import { Splitpanes, Pane } from 'splitpanes'
-import { Ref, computed, defineComponent, onMounted, reactive, ref } from 'vue'
+import { Ref, computed, defineComponent, onMounted, reactive, ref, nextTick, watch, VNodeRef } from 'vue'
 import '@/assets/scss/components/playground/playground.scss'
 import CodeMirror from '@/components/codeMirror/index.vue'
 import Preview from './preview'
@@ -12,6 +12,7 @@ export default defineComponent({
   setup() {
     const entry = 'app.js'
     const html = ref('')
+    const addScriptTagRef = ref<HTMLInputElement | null>(null)
     const isAddScriptVisible = ref(false)
     const style = ref('')
     const scriptModule = reactive(new Map())
@@ -36,7 +37,7 @@ export default defineComponent({
       handleChangeCompileModule()
     }
 
-    const handleBlur = (event: FocusEvent) => {
+    const handleBlur = (event: Event) => {
       isAddScriptVisible.value = false
       let value: string = Reflect.get(event.target || {}, 'value')
       if (value) {
@@ -44,7 +45,23 @@ export default defineComponent({
           value += '.js'
         }
         scriptModule.set(value, `// ${value}`)
+
       }
+    }
+
+    watch(() => isAddScriptVisible.value, (bool) => {
+      if (bool) {
+        nextTick(() => {
+          const el = addScriptTagRef.value
+          if (el) {
+            el.focus?.()
+          }
+        })
+      }
+    })
+
+    const handlerKeydownEnter = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') handleBlur(e)
     }
 
     const handleChangeCurrentScripts = (name: string) => {
@@ -79,11 +96,10 @@ export default defineComponent({
                             return (
                               <span
                                 onClick={() => handleChangeCurrentScripts(val)}
-                                class={`script-tag ${
-                                  currentPage.value === val
-                                    ? 'active-script'
-                                    : ''
-                                }`}
+                                class={`script-tag ${currentPage.value === val
+                                  ? 'active-script'
+                                  : ''
+                                  }`}
                               >
                                 {val}
                               </span>
@@ -92,9 +108,13 @@ export default defineComponent({
                         </div>
                         {isAddScriptVisible.value && (
                           <input
+                            ref={(ref) => {
+                              if (ref instanceof HTMLInputElement) addScriptTagRef.value = ref
+                            }}
                             autofocus
                             class="add-script-tag"
                             onBlur={handleBlur}
+                            onKeypress={handlerKeydownEnter}
                           ></input>
                         )}
                         <Add
