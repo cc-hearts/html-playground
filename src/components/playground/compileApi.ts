@@ -5,11 +5,9 @@ export const transFormCode = (code: Record<string, string>) => {
   return data
 }
 
-interface Compile {
-  (): string
-  __compile?: () => string
-}
-export const compile: Compile = () => {
+export const compile: (() => string | null) & {
+  __comp?: () => string
+} = () => {
   if (compile.__comp instanceof Function) {
     return compile.__comp()
   }
