@@ -2,11 +2,23 @@
 import { usePrefixCls } from '@/hooks'
 import { GithubIcon } from '@/icons'
 import { githubUrl } from '@/configs'
+import Link from '@/icons/Link.vue'
 import ToggleDark from '@/components/switch/toggleDark.vue'
 const headerCls = usePrefixCls('header')
-
+import { copy } from '@cc-heart/utils-client'
+import { compile } from '@/components/playground/compileApi.ts'
 const toGithub = () => {
   if (githubUrl) window.open(githubUrl)
+}
+
+const handleCopyPages = () => {
+  const result = compile()
+  if (result) {
+    copy(location.origin + '/#' + result)
+    setTimeout(() => {
+      alert('Sharable URL has been copied to clipboard.')
+    }, 0)
+  }
 }
 </script>
 
@@ -18,6 +30,7 @@ const toGithub = () => {
     <div class="flex text-2xl items-center" :class="[`${headerCls}__icon`]">
       <slot name="right-icon"></slot>
       <GithubIcon @click="toGithub" />
+      <Link @click="handleCopyPages" />
       <ToggleDark />
     </div>
   </header>
@@ -27,7 +40,8 @@ const toGithub = () => {
 @use '@/assets/scss/var/variable.scss' as var;
 
 .#{var.$prefixCls}-header {
-  height: 60px;
+  height: 48px;
+  flex-shrink: 0;
   box-shadow: 0 1px 0 var(--box-color-1);
 
   &__icon {

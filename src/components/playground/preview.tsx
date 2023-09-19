@@ -114,7 +114,7 @@ export default defineComponent({
           Object.keys(code).forEach(keys => {
             __require._map[keys] = new Function("__require", "__exports", code[keys])
           })
-          __require._map[entry](__require, __exports)
+          __require._map[entry]?.(__require, __exports)
           </script>
         </body>
       </html>

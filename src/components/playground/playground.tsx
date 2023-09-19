@@ -10,13 +10,14 @@ import {
   watch,
 } from 'vue'
 import '@/assets/scss/components/playground/playground.scss'
-import CodeMirror from '@/components/codeMirror/index.vue'
 import Preview from './preview'
 import { RemoveIcon } from '@/icons'
 import Card from '@/components/Card/Container'
 import Add from '@/icons/add.vue'
-import { transFormCode } from './compileApi'
+import { registerCompile, transFormCode } from './compileApi'
 import { useDebounce } from '@/hooks/useDebounce'
+import { Editor } from '@/components/Editor'
+import { mulSplit } from '@cc-heart/utils'
 export default defineComponent({
   name: 'Playground',
   setup() {
@@ -28,6 +29,8 @@ export default defineComponent({
     const scriptModule = reactive(new Map())
     scriptModule.set(entry, `// ${entry}`)
     const currentPage = ref(entry)
+    const splitCode = '__FE-PLAYGROUND__'
+
     const handleChange = (event: string, refs: Ref<string>) => {
       refs.value = event
     }
@@ -90,11 +93,43 @@ export default defineComponent({
       if (e.key === 'Enter') handleBlur(e)
     }
 
+    const compilerBase64 = () => {
+      let compileStr = ''
+      compileStr += `html:${html.value}` + splitCode
+      compileStr += `style:${style.value}` + splitCode
+      for (const [key, value] of scriptModule) {
+        compileStr += `${key}:${value}` + splitCode
+      }
+      return btoa(compileStr)
+    }
+
+    registerCompile(compilerBase64)
+
+    watch([html, scriptModule, style], () => {
+      compilerBase64()
+    })
+
     const handleChangeCurrentScripts = (name: string) => {
       currentPage.value = name
     }
 
     onMounted(() => {
+      const result = location.hash.match(/[^#].*/g)?.[0]
+      if (result) {
+        const str = atob(result)
+        const modules = str.split(new RegExp(splitCode, 'g')).filter(Boolean)
+        modules.forEach((module) => {
+          let [key, value] = mulSplit(module, ':', 1)
+          value ??= ''
+          if (key === 'html') {
+            html.value = value
+          } else if (key === 'style') {
+            style.value = value
+          } else {
+            scriptModule.set(key, value || '')
+          }
+        })
+      }
       handleChangeCompileModule()
     })
 
@@ -105,9 +140,9 @@ export default defineComponent({
             <Splitpanes class="default-theme" horizontal>
               <Pane>
                 <Card v-slots={{ title: () => 'html' }}>
-                  <CodeMirror
-                    value={html.value}
+                  <Editor
                     lang="html"
+                    value={html.value}
                     onChange={(e) => handleChange(e, html)}
                   />
                 </Card>
@@ -160,7 +195,7 @@ export default defineComponent({
                     ),
                   }}
                 >
-                  <CodeMirror
+                  <Editor
                     value={script.value}
                     onChange={(e) => handleChangeScripts(e)}
                   />
@@ -168,9 +203,9 @@ export default defineComponent({
               </Pane>
               <Pane>
                 <Card v-slots={{ title: () => 'style' }}>
-                  <CodeMirror
-                    value={style.value}
+                  <Editor
                     lang="css"
+                    value={style.value}
                     onChange={(e) => handleChange(e, style)}
                   />
                 </Card>
