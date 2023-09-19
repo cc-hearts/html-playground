@@ -119,7 +119,9 @@ export default defineComponent({
         const str = atob(result)
         const modules = str.split(new RegExp(splitCode, 'g')).filter(Boolean)
         modules.forEach((module) => {
+          // eslint-disable-next-line prefer-const
           let [key, value] = mulSplit(module, ':', 1)
+          if (!key) return
           value ??= ''
           if (key === 'html') {
             html.value = value
