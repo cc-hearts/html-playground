@@ -25,3 +25,6 @@ dist-ssr
 shell/
 
 scp.sh
+
+.nuxt
+.output

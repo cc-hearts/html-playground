@@ -1,7 +1,18 @@
-FROM nginx:latest
+FROM node:latest
 
 LABEL maintainer="heart<7362469@qq.com>"
 
-COPY dist/ /opt/fe-playground/
+WORKDIR /opt/html-playground
 
-COPY default.conf /etc/nginx/conf.d/default.conf
+
+COPY .output/ ./.output/
+
+COPY package.json ./
+
+RUN rm -rf node_modules
+
+RUN npm config set registry https://registry.npm.taobao.org
+
+RUN npm i
+
+CMD PORT=8080 node ./.output/server/index.mjs
