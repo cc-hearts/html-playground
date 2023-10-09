@@ -1,11 +1,13 @@
-import { defineConfig, presetAttributify, presetUno } from 'unocss'
+import { defineConfig } from 'unocss'
 
 export default defineConfig({
-  presets: [
-    presetAttributify({
-      /* preset options */
-    }),
-    presetUno(),
-    // ...custom presets
-  ],
+  // ...
+  rules: [
+    [
+      'h-full-1',
+      {
+        'height': "calc(100% - 1px)"
+      }
+    ]
+  ]
 })

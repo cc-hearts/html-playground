@@ -1,5 +1,5 @@
-# FE playground
+# HTML playground
 
-a FE sandbox
+a HTML sandbox
 
 > Inspired by Evan You's Vue SFC Playground

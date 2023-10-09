@@ -1,15 +1,15 @@
 {
-  "name": "v",
-  "private": true,
-  "version": "0.0.0",
+  "name": "html-playground",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview",
-    "prettier": "npx prettier --write ."
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "format": "prettier --write ."
   },
-  "dependencies": {
+  "devDependencies": {
     "@cc-heart/eslint-config": "^0.0.5",
     "@cc-heart/utils": "^2.0.17",
     "@cc-heart/utils-client": "^0.0.16",
@@ -18,12 +18,10 @@
     "@codemirror/lang-javascript": "^6.1.9",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@codemirror/view": "^6.15.3",
-    "@intlify/unplugin-vue-i18n": "^0.10.1",
-    "@types/node": "^20.4.5",
+    "@nuxt/devtools": "latest",
+    "@types/node": "^20.8.3",
     "@types/splitpanes": "^2.2.1",
-    "@types/vue-i18n": "^7.0.0",
-    "@vitejs/plugin-vue-jsx": "^3.0.1",
-    "@vueuse/head": "^1.1.26",
+    "@unocss/nuxt": "^0.56.5",
     "codemirror": "^6.0.1",
     "eslint-plugin-vue": "^9.15.1",
     "markdown-it-link-attributes": "^4.0.1",
@@ -31,21 +29,17 @@
     "monaco-editor": "^0.43.0",
     "monaco-yaml": "^5.1.0",
     "nprogress": "^0.2.0",
+    "nuxt": "^3.7.4",
+    "prettier": "^3.0.0",
     "sass": "^1.64.1",
     "splitpanes": "^3.1.5",
-    "unocss": "^0.51.13",
-    "vite-plugin-pages": "^0.29.1",
-    "vite-plugin-vue-markdown": "^0.23.7",
-    "vue": "^3.3.4",
-    "vue-i18n": "^9.2.2",
-    "vue-router": "^4.2.4"
-  },
-  "devDependencies": {
-    "@types/babel__core": "^7.20.1",
-    "@vitejs/plugin-vue": "^4.2.3",
-    "prettier": "^3.0.0",
     "typescript": "^5.1.6",
-    "vite": "^4.4.7",
-    "vue-tsc": "^1.8.6"
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.5"
+  },
+  "dependencies": {
+    "@babel/core": "^7.23.0",
+    "nuxt-monaco-editor": "^1.2.3",
+    "vue-tsx-support": "^3.2.0"
   }
 }
