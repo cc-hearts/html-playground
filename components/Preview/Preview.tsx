@@ -99,7 +99,7 @@ export default defineComponent({
           const code = ${code}
           const entry = "${props.entry}"
           Object.keys(code).forEach(keys => {
-            __require._map[keys] = new Function("__require", "__exports", "(async () => {" + code[keys] + "})()")
+            __require._map[keys] = new Function("__require", "__exports", "(async () => {" + code[keys] + "\\n" + "})()")
           })
           __require._map[entry]?.(__require, __exports)
           </script>
