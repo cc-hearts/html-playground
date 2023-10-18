@@ -24,7 +24,7 @@ export default defineComponent({
     importMap: {
       type: String,
       default: '{}',
-    }
+    },
   },
   setup(props) {
     const srcDoc = ref('')
@@ -38,7 +38,9 @@ export default defineComponent({
     const importMapFields = computed(() => {
       if (!props.importMap) return '[]'
       const imports = JSON.parse(props.importMap)?.imports || {}
-      return `[${Object.keys(imports).map(target => `'${target}'`).join(',')}]`
+      return `[${Object.keys(imports)
+        .map((target) => `'${target}'`)
+        .join(',')}]`
     })
 
     const updateSrcDoc = () => {

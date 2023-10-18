@@ -6,8 +6,8 @@ export default defineConfig({
     [
       'h-full-1',
       {
-        'height': "calc(100% - 1px)"
-      }
-    ]
-  ]
+        height: 'calc(100% - 1px)',
+      },
+    ],
+  ],
 })
