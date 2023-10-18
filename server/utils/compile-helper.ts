@@ -55,7 +55,7 @@ export function transform(code: string, fileName = '') {
           ? importVariable.join(',')
           : `{${importVariable.join(',')}}`
         const new_ast = babel.template.ast(
-          `const ${__importVariable} = __require("${importStringLiteral}");`,
+          `const ${__importVariable} = await __require("${importStringLiteral}");`,
         )
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
