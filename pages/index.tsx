@@ -17,6 +17,8 @@ import Add from '@/components/icons/add.vue'
 import { registerCompile, transFormCode } from '~/utils/compile-helper'
 import { useDebounce } from '@/hooks/useDebounce'
 import { mulSplit } from '@cc-heart/utils'
+import Loading from '@/components/Loading/loading.vue'
+
 import 'splitpanes/dist/splitpanes.css'
 import '@/assets/scss/components/playground.scss'
 
@@ -32,6 +34,15 @@ export default defineComponent({
     scriptModule.set(entry, `// ${entry}`)
     const currentPage = ref(entry)
     const splitCode = '__FE-PLAYGROUND__'
+    const IMPORT_MAP = 'Import Map'
+    scriptModule.set(
+      IMPORT_MAP,
+      `{
+  "imports": {
+
+  }
+}`,
+    )
 
     const handleChange = (event: string, refs: Ref<string>) => {
       refs.value = event
@@ -44,7 +55,9 @@ export default defineComponent({
     const compileModule = ref({})
 
     const handleChangeCompileModule = useDebounce(async () => {
-      const newCode = await transFormCode(Object.fromEntries(scriptModule))
+      const _scriptModule = Object.fromEntries(scriptModule)
+      delete _scriptModule[IMPORT_MAP]
+      const newCode = await transFormCode(_scriptModule)
       Reflect.set(compileModule, 'value', newCode)
     }, 500)
     const handleChangeScripts = async (event: string) => {
@@ -138,97 +151,128 @@ export default defineComponent({
     })
 
     return () => (
-      <div class="p-3 w-full h-full box-border flex items-center justify-center">
-        <client-only fallbackTag={'span'} fallback={'Loading....'}>
-          <Splitpanes class="default-theme">
-            <Pane>
-              <Splitpanes class="default-theme" horizontal>
+      <div class="p-3 w-full h-full overflow-hidden box-border flex items-center justify-center">
+        <client-only fallbackTag={'div'}>
+          {{
+            fallback: () => <Loading />,
+            default: () => (
+              <Splitpanes class="default-theme">
                 <Pane>
-                  <Card v-slots={{ title: () => 'html' }}>
-                    <Editor
-                      lang="html"
-                      value={html.value}
-                      onChange={(e: string) => handleChange(e, html)}
-                    />
-                  </Card>
-                </Pane>
-                <Pane>
-                  <Card
-                    v-slots={{
-                      title: () => (
-                        <div class="flex items-center">
-                          <div>
-                            {scriptNames.value.map((val) => {
-                              return (
-                                <span
+                  <Splitpanes class="default-theme" horizontal>
+                    <Pane>
+                      <Card v-slots={{ title: () => 'html' }}>
+                        <Editor
+                          lang="html"
+                          value={html.value}
+                          onChange={(e: string) => handleChange(e, html)}
+                        />
+                      </Card>
+                    </Pane>
+                    <Pane>
+                      <Card
+                        v-slots={{
+                          title: () => (
+                            <div class="w-full flex relative">
+                              <div class="flex-1 flex items-center overflow-x-auto m-r-100px files-scroll">
+                                <div class="whitespace-nowrap">
+                                  {scriptNames.value
+                                    .filter((target) => target !== IMPORT_MAP)
+                                    .map((val) => {
+                                      return (
+                                        <span
+                                          onClick={() =>
+                                            handleChangeCurrentScripts(val)
+                                          }
+                                          class={`script-tag relative ${
+                                            currentPage.value === val
+                                              ? 'active-script'
+                                              : ''
+                                          }`}
+                                        >
+                                          {val}
+                                          {val === 'app.js' ? null : (
+                                            <RemoveIcon
+                                              class="absolute top-3px right--2px"
+                                              onClick={(e: MouseEvent) =>
+                                                handleRemoveTag(val, e)
+                                              }
+                                            />
+                                          )}
+                                        </span>
+                                      )
+                                    })}
+                                </div>
+                                {isAddScriptVisible.value && (
+                                  <input
+                                    ref={(ref) => {
+                                      if (ref instanceof HTMLInputElement)
+                                        addScriptTagRef.value = ref
+                                    }}
+                                    autofocus
+                                    class="add-script-tag"
+                                    onBlur={handleBlur}
+                                    onKeypress={handlerKeydownEnter}
+                                  ></input>
+                                )}
+                                <Add
                                   onClick={() =>
-                                    handleChangeCurrentScripts(val)
+                                    (isAddScriptVisible.value = true)
                                   }
-                                  class={`script-tag relative ${currentPage.value === val
-                                    ? 'active-script'
-                                    : ''
-                                    }`}
+                                />
+                                <div
+                                  class={
+                                    'script-tag__import absolute right-0' +
+                                    (currentPage.value === IMPORT_MAP
+                                      ? ' active-script'
+                                      : '')
+                                  }
+                                  onClick={() =>
+                                    handleChangeCurrentScripts(IMPORT_MAP)
+                                  }
                                 >
-                                  {val}
-                                  {val === 'app.js' ? null : (
-                                    <RemoveIcon
-                                      class="absolute top-3px right--2px"
-                                      onClick={(e: MouseEvent) =>
-                                        handleRemoveTag(val, e)
-                                      }
-                                    />
-                                  )}
-                                </span>
-                              )
-                            })}
-                          </div>
-                          {isAddScriptVisible.value && (
-                            <input
-                              ref={(ref) => {
-                                if (ref instanceof HTMLInputElement)
-                                  addScriptTagRef.value = ref
-                              }}
-                              autofocus
-                              class="add-script-tag"
-                              onBlur={handleBlur}
-                              onKeypress={handlerKeydownEnter}
-                            ></input>
-                          )}
-                          <Add
-                            onClick={() => (isAddScriptVisible.value = true)}
-                          />
-                        </div>
-                      ),
-                    }}
-                  >
-                    <Editor
-                      value={script.value}
-                      onChange={(e: string) => handleChangeScripts(e)}
-                    />
-                  </Card>
+                                  {IMPORT_MAP}
+                                </div>
+                              </div>
+                            </div>
+                          ),
+                        }}
+                      >
+                        <Editor
+                          value={script.value}
+                          lang={
+                            currentPage.value === IMPORT_MAP
+                              ? 'json'
+                              : 'javascript'
+                          }
+                          onChange={(e: string) => handleChangeScripts(e)}
+                        />
+                      </Card>
+                    </Pane>
+                    <Pane>
+                      <Card v-slots={{ title: () => 'style' }}>
+                        <Editor
+                          lang="css"
+                          value={style.value}
+                          onChange={(e: string) => handleChange(e, style)}
+                        />
+                      </Card>
+                    </Pane>
+                  </Splitpanes>
                 </Pane>
-                <Pane>
-                  <Card v-slots={{ title: () => 'style' }}>
-                    <Editor
-                      lang="css"
-                      value={style.value}
-                      onChange={(e: string) => handleChange(e, style)}
+                <Pane class="h-full">
+                  <Card v-slots={{ title: () => 'output' }}>
+                    <Preview
+                      compileModule={compileModule.value}
+                      importMap={scriptModule.get(IMPORT_MAP) || ''}
+                      entry={entry}
+                      html={html.value}
+                      style={style.value}
                     />
                   </Card>
                 </Pane>
               </Splitpanes>
-            </Pane>
-            <Pane class="h-full">
-              <Card v-slots={{ title: () => 'output' }}>
-                <Preview
-                  compileModule={compileModule.value}
-                  entry={entry}
-                  html={html.value}
-                  style={style.value}
-                />
-              </Card>
-            </Pane>
-          </Splitpanes>
+            ),
+          }}
         </client-only>
       </div>
     )

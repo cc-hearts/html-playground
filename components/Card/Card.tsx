@@ -14,9 +14,7 @@ export default defineComponent({
       return (
         <div class={`h-full rounded-md ${cardCls}`}>
           {defaultTitle}
-          <div class="h-full w-full">
-            {slots.default?.()}
-          </div>
+          <div class="h-full w-full">{slots.default?.()}</div>
         </div>
       )
     }

@@ -1,7 +1,7 @@
 <template>
   <svg
     @click="handleClick"
-    class="ml-2 cursor-pointer hover:color-red transition"
+    class="ml-2 cursor-pointer hover:color-red flex-shrink-0 transition"
     xmlns="http://www.w3.org/2000/svg"
     width="1.5em"
     height="1.5em"

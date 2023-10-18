@@ -21,6 +21,10 @@ export default defineComponent({
       type: String,
       default: 'app.js',
     },
+    importMap: {
+      type: String,
+      default: '{}',
+    },
   },
   setup(props) {
     const srcDoc = ref('')
@@ -30,6 +34,14 @@ export default defineComponent({
     function getColor() {
       return getComputedStyle(document.body).color
     }
+
+    const importMapFields = computed(() => {
+      if (!props.importMap) return '[]'
+      const imports = JSON.parse(props.importMap)?.imports || {}
+      return `[${Object.keys(imports)
+        .map((target) => `'${target}'`)
+        .join(',')}]`
+    })
 
     const updateSrcDoc = () => {
       const code = JSON.stringify(props.compileModule)
@@ -55,8 +67,12 @@ export default defineComponent({
           <div id="app-iframe">
             ${props.html}
           </div>
+          <script type="importmap">
+               ${props.importMap}
+          </script>
           <script type="module">
-          function __require(keys) {
+          const __import__map = ${importMapFields.value}
+          async function __require(keys) {
             if (__exports._map[keys]) {
               return __exports._map[keys];
             }
@@ -64,6 +80,10 @@ export default defineComponent({
             if (func instanceof Function) {
               func(__require, __exports);
               return __exports._map[keys] || {};
+            }
+            // is exist import Map ?
+            if (__import__map.includes(keys)) {
+              return import(keys);
             }
             return {};
           }
@@ -79,7 +99,7 @@ export default defineComponent({
           const code = ${code}
           const entry = "${props.entry}"
           Object.keys(code).forEach(keys => {
-            __require._map[keys] = new Function("__require", "__exports", code[keys])
+            __require._map[keys] = new Function("__require", "__exports", "(async () => {" + code[keys] + "})()")
           })
           __require._map[entry]?.(__require, __exports)
           </script>
