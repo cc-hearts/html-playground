@@ -14,14 +14,8 @@ const toGithub = () => {
 }
 
 const handleCopyPages = () => {
-  const result = compile()
-  if (result) {
-    showMessage('Sharable URL has been copied to clipboard.', 'success')
-    // copy(location.origin + '/#' + result)
-    // setTimeout(() => {
-    //   alert('Sharable URL has been copied to clipboard.')
-    // }, 0)
-  }
+  copy(location.href)
+  showMessage('Sharable URL has been copied to clipboard.', 'success')
 }
 </script>
 
@@ -50,9 +44,9 @@ const handleCopyPages = () => {
   &__icon {
     color: var(--color-text-2);
 
-    & > div,
-    & > button,
-    & > svg {
+    &>div,
+    &>button,
+    &>svg {
       margin: 0 0.5rem;
     }
 

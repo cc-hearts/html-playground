@@ -37,4 +37,9 @@ html.dark {
 p {
   line-height: 1.8em;
 }
+
+.splitpanes__splitter {
+  border-top: 0 !important;
+  border-left:  0 !important;
+}
 </style>

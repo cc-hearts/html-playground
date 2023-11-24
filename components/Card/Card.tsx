@@ -2,8 +2,6 @@ import { defineComponent } from 'vue'
 import { usePrefixCls } from '@/hooks'
 import '@/assets/scss/components/card.scss'
 
-
-
 export default defineComponent({
   name: 'Card',
   setup(_, { slots }) {

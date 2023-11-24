@@ -1,0 +1,47 @@
+$translateY: -200%;
+
+.msg-leave-to
+ {
+  transform: translateX(-50%) translateY($translateY);
+  opacity: 0;
+}
+
+.msg-leave-from {
+  transform:translateX(-50%) translateY(0%);
+  opacity: 1;
+}
+
+.msg-leave-active {
+  transition: all .5s;
+}
+
+@keyframes messageAnimation {
+  0% {
+    transform: translateX(-50%) translateY($translateY);
+    opacity: 0;
+  }
+
+  100% {
+    transform:translateX(-50%) translateY(-0%);
+    opacity: 1;
+  }
+}
+
+.message-box {
+  --message-bg-color: #fff;
+  --message-box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  background-color: var(--message-bg-color);
+  box-shadow:var(--message-box-shadow);
+  transition: all .3s;
+  animation: messageAnimation .5s;
+}
+
+
+.dark .message-box {
+  --message-bg-color: #1f1f1f;
+  --message-box-shadow:0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}

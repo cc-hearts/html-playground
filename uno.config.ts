@@ -8,6 +8,6 @@ export default defineConfig({
       {
         height: 'calc(100% - 1px)',
       },
-    ],
+    ]
   ],
 })
