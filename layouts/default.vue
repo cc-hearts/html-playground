@@ -3,7 +3,11 @@ import Headers from '@/components/Header/header.vue'
 </script>
 <template>
   <main class="flex flex-col h-full w-full text-gray-700 dark:text-gray-200">
-    <Headers />
+    <Headers>
+      <template #left>
+        <h1>HTML Playground</h1>
+      </template>
+    </Headers>
     <slot />
   </main>
 </template>
