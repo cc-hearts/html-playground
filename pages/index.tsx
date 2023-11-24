@@ -1,26 +1,26 @@
-import { Splitpanes, Pane } from 'splitpanes'
+import '@/assets/scss/components/playground.scss'
+import Card from '@/components/Card/Card'
+import Editor from '@/components/Editor/Editor.vue'
+import Loading from '@/components/Loading/loading.vue'
+import Preview from '@/components/Preview/Preview'
+import Add from '@/components/icons/add.vue'
+import RemoveIcon from '@/components/icons/removeIcon.vue'
+import { useDebounce } from '@/hooks/useDebounce'
+import { setBase64ForLocation } from '@/utils/url'
+import { mulSplit } from '@cc-heart/utils'
+import { Pane, Splitpanes } from 'splitpanes'
+import 'splitpanes/dist/splitpanes.css'
 import {
   Ref,
   computed,
   defineComponent,
+  nextTick,
   onMounted,
   reactive,
   ref,
-  nextTick,
   watch,
 } from 'vue'
-import RemoveIcon from '@/components/icons/removeIcon.vue'
-import Editor from '@/components/Editor/Editor.vue'
-import Preview from '@/components/Preview/Preview'
-import Card from '@/components/Card/Card'
-import Add from '@/components/icons/add.vue'
 import { registerCompile, transFormCode } from '~/utils/compile-helper'
-import { useDebounce } from '@/hooks/useDebounce'
-import { mulSplit } from '@cc-heart/utils'
-import Loading from '@/components/Loading/loading.vue'
-
-import 'splitpanes/dist/splitpanes.css'
-import '@/assets/scss/components/playground.scss'
 
 export default defineComponent({
   name: 'Playground',
@@ -60,6 +60,7 @@ export default defineComponent({
       const newCode = await transFormCode(_scriptModule)
       Reflect.set(compileModule, 'value', newCode)
     }, 500)
+
     const handleChangeScripts = async (event: string) => {
       scriptModule.set(currentPage.value, event)
       handleChangeCompileModule()
@@ -121,7 +122,7 @@ export default defineComponent({
     registerCompile(compilerBase64)
 
     watch([html, scriptModule, style], () => {
-      compilerBase64()
+      setBase64ForLocation(compilerBase64())
     })
 
     const handleChangeCurrentScripts = (name: string) => {
