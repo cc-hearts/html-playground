@@ -121,8 +121,12 @@ export default defineComponent({
 
     registerCompile(compilerBase64)
 
-    watch([html, scriptModule, style], () => {
+    const lazyCompile = useDebounce(() => {
       setBase64ForLocation(compilerBase64())
+    }, 500)
+
+    watch([html, scriptModule, style], () => {
+      lazyCompile()
     })
 
     const handleChangeCurrentScripts = (name: string) => {

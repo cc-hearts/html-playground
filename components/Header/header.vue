@@ -5,7 +5,6 @@ import { githubUrl } from '@/configs'
 import Link from '@/components/icons/Link.vue'
 import ToggleDark from '@/components/switch/toggleDark.vue'
 import { copy } from '@cc-heart/utils-client'
-import { compile } from '@/utils/compile-helper'
 import { showMessage } from '@/components/message/message';
 
 const headerCls = usePrefixCls('header')
