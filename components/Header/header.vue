@@ -6,6 +6,7 @@ import Link from '@/components/icons/Link.vue'
 import ToggleDark from '@/components/switch/toggleDark.vue'
 import { copy } from '@cc-heart/utils-client'
 import { compile } from '@/utils/compile-helper'
+import { showMessage } from '@/components/message/message';
 
 const headerCls = usePrefixCls('header')
 const toGithub = () => {
@@ -13,13 +14,8 @@ const toGithub = () => {
 }
 
 const handleCopyPages = () => {
-  const result = compile()
-  if (result) {
-    copy(location.origin + '/#' + result)
-    setTimeout(() => {
-      alert('Sharable URL has been copied to clipboard.')
-    }, 0)
-  }
+  copy(location.href)
+  showMessage('Sharable URL has been copied to clipboard.', 'success')
 }
 </script>
 
@@ -48,9 +44,9 @@ const handleCopyPages = () => {
   &__icon {
     color: var(--color-text-2);
 
-    & > div,
-    & > button,
-    & > svg {
+    &>div,
+    &>button,
+    &>svg {
       margin: 0 0.5rem;
     }
 

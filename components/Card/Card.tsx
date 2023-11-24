@@ -6,6 +6,7 @@ export default defineComponent({
   name: 'Card',
   setup(_, { slots }) {
     const cardCls = usePrefixCls('card')
+
     return () => {
       const defaultTitle = slots.title ? (
         <div class={`${cardCls}__title p-1.5`}>{slots.title()}</div>
