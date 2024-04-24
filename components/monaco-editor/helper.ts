@@ -9,6 +9,10 @@ export const MonacoEditorProps = {
     type: Boolean,
     default: true
   },
+  modelValue: {
+    type: String,
+    default: ''
+  },
   language: {
     type: String,
     default: 'javascript'

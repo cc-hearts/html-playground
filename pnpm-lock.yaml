@@ -8,6 +8,9 @@ dependencies:
   '@cc-heart/ui-demi':
     specifier: ^0.5.3
     version: 0.5.3
+  '@cc-heart/utils':
+    specifier: ^5.1.1
+    version: 5.1.1
   '@unocss/nuxt':
     specifier: ^0.59.4
     version: 0.59.4(postcss@8.4.38)(vite@5.2.10)(webpack@5.91.0)

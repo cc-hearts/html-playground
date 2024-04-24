@@ -16,13 +16,18 @@
           <Pane>
             <Splitpanes horizontal>
               <Pane>
-                <CodeCard />
+                <CodeCard language="html" field="htmlModules" v-model:active-tabs="activeHtmlActiveTab" />
               </Pane>
               <Pane>
-                <div class="h-full w-full border"></div>
+                <div class="h-full w-full border">
+                  <CodeCard language="javascript" add-button field="scriptModules" v-model:active-tabs="activeScriptActiveTab"
+                  @add="handleAddScriptModules"/>
+                </div>
               </Pane>
               <Pane>
-                <div class="h-full w-full">1</div>
+                <div class="h-full w-full">
+                  <CodeCard language="css" field="styleModules" v-model:active-tabs="activeStyleActiveTab" />
+                </div>
               </Pane>
             </Splitpanes>
           </Pane>
@@ -39,16 +44,34 @@
 <script setup lang="ts">
 import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
-import CodeCard from '~/components/code-card/code-card.vue';
-import { PLAYGROUND_KEY } from '~/constants';
+import CodeCard from '~/components/code-card/code-card.vue'
+import { PLAYGROUND_KEY } from '~/constants'
 
-const htmlInner = ref()
-const styleInner = ref()
+const htmlModules = ref(new Map())
+const activeHtmlActiveTab = ref('index.html')
+htmlModules.value.set(activeHtmlActiveTab.value, '')
+
+const styleModules = ref(new Map())
+const activeStyleActiveTab = ref('index.css')
+styleModules.value.set(activeStyleActiveTab.value, '')
+
 const scriptModules = ref(new Map())
+const activeScriptActiveTab = ref('index.js')
+scriptModules.value.set(activeScriptActiveTab.value, '')
+console.log(scriptModules);
 
+let scriptModuleCount = 0
+const handleAddScriptModules = () => {
+  let key = `script-${scriptModuleCount++}.js`
+  while (scriptModules.value.has(key)) {
+    key = `script-${scriptModuleCount++}.js`
+  }
+  scriptModules.value.set(key, '')
+  activeScriptActiveTab.value = key
+}
 provide(PLAYGROUND_KEY, {
-  htmlInner,
-  styleInner,
+  htmlModules,
+  styleModules,
   scriptModules
 })
 </script>

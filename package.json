@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@cc-heart/ui-demi": "^0.5.3",
+    "@cc-heart/utils": "^5.1.1",
     "@unocss/nuxt": "^0.59.4",
     "monaco-editor": "^0.48.0",
     "nuxt": "^3.11.2",
