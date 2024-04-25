@@ -11,28 +11,32 @@
         loading....
       </template>
 
-      <div class="flex-1">
+      <div class="flex-1 overflow-hidden">
         <Splitpanes>
           <Pane>
             <Splitpanes horizontal>
               <Pane>
-                <CodeCard language="html" field="htmlModules" v-model:active-tabs="activeHtmlActiveTab" />
+                <CodeCard language="html" field="htmlModules" v-model:active-tabs="activeHtmlActiveTab" @change="triggerPreviewUpdateKey++" />
               </Pane>
               <Pane>
                 <div class="h-full w-full border">
-                  <CodeCard language="javascript" add-button field="scriptModules" v-model:active-tabs="activeScriptActiveTab"
-                  @add="handleAddScriptModules"/>
+                  <CodeCard language="javascript" add-button field="scriptModules"
+                    v-model:active-tabs="activeScriptActiveTab" @add="handleAddScriptModules"
+                    @change="lazyWatchScriptModulesCompile" />
                 </div>
               </Pane>
               <Pane>
                 <div class="h-full w-full">
-                  <CodeCard language="css" field="styleModules" v-model:active-tabs="activeStyleActiveTab" />
+                  <CodeCard language="css" field="styleModules" v-model:active-tabs="activeStyleActiveTab" @change="triggerPreviewUpdateKey++"/>
                 </div>
               </Pane>
             </Splitpanes>
           </Pane>
           <Pane>
-            <div class="h-full"></div>
+            <div class="h-full">
+              <Preview :entry="entry" :update-key="triggerPreviewUpdateKey" :compiled-module="compiledScriptModule" :html-inner="htmlModules.get(activeHtmlActiveTab)"
+                :css-inner="styleModules.get(activeStyleActiveTab)" />
+            </div>
           </Pane>
         </Splitpanes>
       </div>
@@ -42,31 +46,41 @@
 </template>
 
 <script setup lang="ts">
+import { defineDebounceFn } from '@cc-heart/utils';
 import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 import CodeCard from '~/components/code-card/code-card.vue'
+import Preview from '~/components/preview/preview.vue';
 import { PLAYGROUND_KEY } from '~/constants'
 
-const htmlModules = ref(new Map())
-const activeHtmlActiveTab = ref('index.html')
-htmlModules.value.set(activeHtmlActiveTab.value, '')
+const defineModulesFactory = (initialActiveTabs: string) => {
+  const modules = new Map<string, string>()
+  const activeTabs = ref(initialActiveTabs)
+  modules.set(activeTabs.value, '')
+  return { modules, activeTabs }
+}
+const entry = 'index.js'
+const triggerPreviewUpdateKey = ref(0)
+const { modules: htmlModules, activeTabs: activeHtmlActiveTab } = defineModulesFactory('index.html')
+const { modules: styleModules, activeTabs: activeStyleActiveTab } = defineModulesFactory('index.css')
 
-const styleModules = ref(new Map())
-const activeStyleActiveTab = ref('index.css')
-styleModules.value.set(activeStyleActiveTab.value, '')
+const { modules: scriptModules, activeTabs: activeScriptActiveTab } = defineModulesFactory(entry)
 
-const scriptModules = ref(new Map())
-const activeScriptActiveTab = ref('index.js')
-scriptModules.value.set(activeScriptActiveTab.value, '')
-console.log(scriptModules);
+const compiledScriptModule = ref({})
+const lazyWatchScriptModulesCompile = defineDebounceFn(async () => {
+  const modules = Object.fromEntries(scriptModules)
+  const newCode = await transFormCode(modules)
+  Reflect.set(compiledScriptModule, 'value', newCode)
+})
+
 
 let scriptModuleCount = 0
 const handleAddScriptModules = () => {
   let key = `script-${scriptModuleCount++}.js`
-  while (scriptModules.value.has(key)) {
+  while (scriptModules.has(key)) {
     key = `script-${scriptModuleCount++}.js`
   }
-  scriptModules.value.set(key, '')
+  scriptModules.set(key, '')
   activeScriptActiveTab.value = key
 }
 provide(PLAYGROUND_KEY, {

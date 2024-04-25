@@ -1,52 +1,57 @@
 <template>
   <div ref="monacoRef"></div>
 </template>
+
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
 import { MonacoEditorProps } from './helper'
-// /esm/vs/editor/editor.api
-import * as monaco from 'monaco-editor'
-import { defineDebounceFn } from '@cc-heart/utils';
+import {editor} from 'monaco-editor'
+import { defineDebounceFn } from '@cc-heart/utils'
+import { setupAutoTagClose } from '~/components/monaco-editor/plugins/auto-tag-close'
 
 const props = defineProps(MonacoEditorProps)
 
 const monacoRef = ref()
-let monacoEditorInstance: monaco.editor.IStandaloneCodeEditor | null = null
+let monacoEditorInstance: editor.IStandaloneCodeEditor | null = null
 
 const updateMonacoValue = (value: string) => {
   monacoEditorInstance?.setValue(value)
 }
+
+watchEffect(() => {
+  updateMonacoValue(props.modelValue)
+})
 
 const getValue = () => {
   return monacoEditorInstance?.getValue()
 }
 const emits = defineEmits(['update:modelValue'])
 const debounceUpdateModelValue = defineDebounceFn(event => {
-  console.log('--------');
   emits('update:modelValue', getValue())
 })
 
 onMounted(() => {
-  monacoEditorInstance = monaco.editor.create(monacoRef.value, {
+  monacoEditorInstance = editor.create(monacoRef.value, {
     language: props.language,
-    value: '',
+    value: props.modelValue,
     folding: true,
     theme: props.theme,
     scrollbar: {
       verticalScrollbarSize: 8,
-      horizontalScrollbarSize: 8,
+      horizontalScrollbarSize: 8
     },
     minimap: {
-      enabled: props.minimapEnabled,
+      enabled: props.minimapEnabled
     },
-    renderValidationDecorations: 'on',
+    automaticLayout: true,
+    renderValidationDecorations: 'on'
   })
 
-  monacoEditorInstance.onDidChangeModelContent(debounceUpdateModelValue);
+  setupAutoTagClose(monacoEditorInstance)
+  monacoEditorInstance.onDidChangeModelContent(debounceUpdateModelValue)
 })
 
 defineExpose({
   updateMonacoValue,
-  getValue,
+  getValue
 })
 </script>
