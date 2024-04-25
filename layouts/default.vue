@@ -16,34 +16,32 @@
           <Pane>
             <Splitpanes horizontal>
               <Pane>
-                <CodeCard language="html" field="htmlModules" v-model:active-tabs="activeHtmlActiveTab"
-                  />
+                <CodeCard ref="htmlRef" language="html" field="htmlModules" v-model:active-tabs="activeHtmlActiveTab"
+                  @change="lazyCompileBase64" />
               </Pane>
               <Pane>
                 <div class="h-full w-full border">
-                  <CodeCard :key="scriptModuleKeys"
-                    :language="activeScriptActiveTab === importMapTitle ? 'json' : 'javascript'" add-button
-                    field="scriptModules" v-model:active-tabs="activeScriptActiveTab" @add="handleAddScriptModules"
-                    @change="lazyWatchScriptModulesCompile" :disabledTitle="[importMapTitle]"
-                    @remove="handleRemoveScriptModules">
+                  <CodeCard ref="scriptRef" :language="activeScriptActiveTab === importMapTitle ? 'json' : 'javascript'"
+                    add-button field="scriptModules" v-model:active-tabs="activeScriptActiveTab"
+                    @add="handleAddScriptModules" @change="lazyWatchScriptModulesCompile"
+                    :disabledTitle="[importMapTitle]" @remove="handleRemoveScriptModules">
 
                   </CodeCard>
                 </div>
               </Pane>
               <Pane>
                 <div class="h-full w-full">
-                  <CodeCard language="css" field="styleModules" v-model:active-tabs="activeStyleActiveTab"
-                     />
+                  <CodeCard language="css" ref="cssRef" field="styleModules" v-model:active-tabs="activeStyleActiveTab"
+                    @change="lazyCompileBase64" />
                 </div>
               </Pane>
             </Splitpanes>
           </Pane>
           <Pane>
             <div class="h-full">
-              <Preview :entry="entry"  :compiled-module="compiledScriptModule"
-                :html-inner="htmlModules.get(activeHtmlActiveTab)"
-                :importMap="scriptModules.get(importMapTitle) || ''"
-                :css-inner="styleModules.get(activeStyleActiveTab)" />
+              <Preview :entry="entry" :compiled-module="compiledScriptModule"
+                :html-inner="htmlModules[activeHtmlActiveTab]" :importMap="scriptModules[importMapTitle] || ''"
+                :css-inner="styleModules[activeStyleActiveTab]" />
             </div>
           </Pane>
         </Splitpanes>
@@ -54,38 +52,40 @@
 </template>
 
 <script setup lang="ts">
-import { defineDebounceFn } from '@cc-heart/utils';
-import { Pane, Splitpanes } from 'splitpanes'
-import 'splitpanes/dist/splitpanes.css'
-import CodeCard from '~/components/code-card/code-card.vue'
+import { defineDebounceFn, mulSplit } from '@cc-heart/utils';
+import { Pane, Splitpanes } from 'splitpanes';
+import 'splitpanes/dist/splitpanes.css';
+import CodeCard from '~/components/code-card/code-card.vue';
 import Preview from '~/components/preview/preview.vue';
-import { PLAYGROUND_KEY } from '~/constants'
+import { PLAYGROUND_KEY } from '~/constants';
 
 const defineModulesFactory = (initialActiveTabs: string) => {
-  const modules = ref(new Map<string, string>())
+  const modules = ref({} as Record<string, string>);
   const activeTabs = ref(initialActiveTabs)
-  modules.value.set(activeTabs.value, '')
-  return { modules, activeTabs }
+  modules.value[activeTabs.value] = ''
+  const compRef = ref()
+  return { modules, activeTabs, compRef }
 }
 const entry = 'index.js'
-const { modules: htmlModules, activeTabs: activeHtmlActiveTab } = defineModulesFactory('index.html')
-const { modules: styleModules, activeTabs: activeStyleActiveTab } = defineModulesFactory('index.css')
+const { modules: htmlModules, activeTabs: activeHtmlActiveTab, compRef: htmlRef } = defineModulesFactory('index.html')
+const { modules: styleModules, activeTabs: activeStyleActiveTab, compRef: scriptRef } = defineModulesFactory('index.css')
 
-const { modules: scriptModules, activeTabs: activeScriptActiveTab } = defineModulesFactory(entry)
+const { modules: scriptModules, activeTabs: activeScriptActiveTab, compRef: cssRef } = defineModulesFactory(entry)
 const importMapTitle = 'import map'
-scriptModules.value.set(importMapTitle, `\n
+scriptModules.value[importMapTitle] = `\n
 {
   "imports": {
     "@cc-heart/utils": "https://www.unpkg.com/@cc-heart/utils@5.1.1/dist/browser/index.js"
   }
-}`)
+}`
 
 const compiledScriptModule = ref({})
 const lazyWatchScriptModulesCompile = defineDebounceFn(async () => {
-  const modules = Object.fromEntries(scriptModules.value)
+  const modules = { ...scriptModules.value }
   delete modules[importMapTitle]
   const newCode = await transFormCode(modules)
   Reflect.set(compiledScriptModule, 'value', newCode)
+  lazyCompileBase64()
 })
 
 
@@ -93,14 +93,15 @@ let scriptModuleCount = 0
 const scriptModuleKeys = ref(0)
 const handleAddScriptModules = () => {
   let key = `script-${scriptModuleCount++}.js`
-  while (scriptModules.value.has(key)) {
+  const keys = Object.keys(scriptModules.value)
+  while (keys.includes(key)) {
     key = `script-${scriptModuleCount++}.js`
   }
-  scriptModules.value.set(key, '')
+  scriptModules.value[key] = ''
   activeScriptActiveTab.value = key
 }
 const handleRemoveScriptModules = (title: string) => {
-  scriptModules.value.delete(title)
+  delete scriptModules.value[title]
   scriptModuleKeys.value++
   if (title === activeScriptActiveTab.value) {
     activeScriptActiveTab.value = entry
@@ -110,6 +111,58 @@ provide(PLAYGROUND_KEY, {
   htmlModules,
   styleModules,
   scriptModules
+})
+
+// ========== compile bas64 ========
+const splitCode = '__HTML-PLAYGROUND__'
+const compilerBase64 = () => {
+  let compileStr = ''
+  compileStr += `html:${htmlModules.value['index.html']}` + splitCode
+  compileStr += `style:${styleModules.value['index.css']}` + splitCode
+  const keys = Object.keys(scriptModules.value)
+  for (const key of keys) {
+    compileStr += `${key}:${scriptModules.value[key]}` + splitCode
+  }
+  return btoa(compileStr)
+}
+
+function setBase64ForLocation(base64: string) {
+  location.href = location.origin + location.pathname + '#' + base64
+}
+
+const lazyCompileBase64 = defineDebounceFn(() => {
+  setBase64ForLocation(compilerBase64())
+}, 500)
+
+const deCodeBase64ToModules = () => {
+  const matcher = location.hash.match(/[^#].*/g)?.[0]
+  if (matcher) {
+    const str = atob(matcher)
+    const modules = str.split(new RegExp(splitCode, 'g')).filter(Boolean)
+    modules.forEach((module) => {
+      let [key, value] = mulSplit(module, ':', 1)
+      if (!key) return
+      value ??= ''
+      if (key === 'html') {
+        htmlModules.value['index.html'] = value
+        htmlRef.value?.setValueToMonaco(value)
+      } else if (key === 'style') {
+        styleModules.value['index.css'] = value
+        cssRef.value?.setValueToMonaco(value)
+      } else {
+        scriptModules.value[key] = value
+      }
+    })
+    scriptRef.value?.setValueToMonaco(scriptModules.value[activeScriptActiveTab.value] || '')
+
+    lazyWatchScriptModulesCompile()
+  }
+}
+
+onMounted(() => {
+  nextTick(() => {
+    deCodeBase64ToModules()
+  })
 })
 </script>
 

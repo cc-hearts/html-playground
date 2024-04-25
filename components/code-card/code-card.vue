@@ -4,7 +4,7 @@
     <div class="flex">
       <div class="bg-#222222 text-3.5 leading-8 flex items-center overflow-x-auto">
         <div class="code-card-add-button p-x-2 cursor-pointer" v-if="addButton" @click="handleAdd"> +</div>
-        <div v-for="(item, index) in [...injectData[props.field].value.keys()]"
+        <div v-for="(item, index) in Object.keys(injectData[props.field].value)"
           class="code-card-title p-x-1.5 cursor-pointer box-border border-r-1px border-r-solid border-color-[#444] relative"
           :class="[
             index === 0 && 'border-l-1px border-l-solid border-l-color-[#444]',
@@ -49,18 +49,17 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const injectData = inject(PLAYGROUND_KEY, {
-  [props.field]: ref(new Map())
+  [props.field]: ref({} as Record<string, string>)
 })
 
 const monacoEditorRef = ref()
 
 watch(() => props.activeTabs, () => {
   if (monacoEditorRef.value) {
-    const value = injectData[props.field].value.get(props.activeTabs) || ''
+    const value = injectData[props.field].value[props.activeTabs] || ''
     monacoEditorRef.value.updateMonacoValue(value)
   }
 })
-
 
 const emits = defineEmits(['update:activeTabs', 'add', 'change', 'remove'])
 const handleChangeActiveTabs = (activeName: string) => {
@@ -78,10 +77,10 @@ const handleChangeTitleStatus = (index: number, title: string) => {
 }
 const handleChangeFileTitle = (fileTitle: string, evt: FocusEvent) => {
   const map = injectData[props.field]
-  const value = map.value.get(fileTitle)
-  map.value.delete(fileTitle)
+  const value = map.value[fileTitle]
+  delete map.value[fileTitle]
   const newFileName = (evt.target as HTMLInputElement).value
-  map.value.set(newFileName, value)
+  map.value[newFileName] = value
   if (props.activeTabs === fileTitle) {
     emits('update:activeTabs', newFileName)
   }
@@ -90,9 +89,9 @@ const handleChangeFileTitle = (fileTitle: string, evt: FocusEvent) => {
 
 const handleChangeScriptModelValue = (value: string) => {
   const map = injectData[props.field]
-  const oldValue = map.value.get(props.activeTabs)
+  const oldValue = map.value[props.activeTabs]
   if (oldValue !== value) {
-    map.value.set(props.activeTabs, value)
+    map.value[props.activeTabs] = value
     emits('change')
   }
 }
@@ -100,6 +99,14 @@ const handleChangeScriptModelValue = (value: string) => {
 const removeTitle = (title: string) => {
   emits('remove', title)
 }
+const setValueToMonaco = (value: string) => {
+  if (monacoEditorRef.value) {
+    monacoEditorRef.value.updateMonacoValue(value)
+  }
+}
+defineExpose({
+  setValueToMonaco
+})
 </script>
 
 <style lang="scss">
