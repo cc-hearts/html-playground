@@ -18,7 +18,6 @@ interface MonacoEnvironment {
   MonacoEnvironment: MonacoEnvironment;
 }).MonacoEnvironment = {
   getWorker(_, label) {
-    console.log(label)
     if (label === 'json') {
       return new jsonWorker();
     }

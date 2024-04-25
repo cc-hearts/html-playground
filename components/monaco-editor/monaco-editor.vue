@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { MonacoEditorProps } from './helper'
-import {editor} from 'monaco-editor'
+import { editor } from 'monaco-editor'
 import { defineDebounceFn } from '@cc-heart/utils'
 import { setupAutoTagClose } from '~/components/monaco-editor/plugins/auto-tag-close'
 
@@ -48,6 +48,12 @@ onMounted(() => {
 
   setupAutoTagClose(monacoEditorInstance)
   monacoEditorInstance.onDidChangeModelContent(debounceUpdateModelValue)
+})
+
+watch(() => props.language, () => {
+  if (monacoEditorInstance) {
+    editor.setModelLanguage(monacoEditorInstance.getModel()!, props.language);
+  }
 })
 
 defineExpose({

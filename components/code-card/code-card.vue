@@ -1,55 +1,68 @@
 <template>
   <div class="h-full w-full flex flex-col">
     <!-- tabs -->
-    <div class="bg-#222222 color-#fff text-3.5 leading-8 flex items-center">
-      <div class="code-card-add-button p-x-2 cursor-pointer" v-if="addButton" @click="handleAdd"> +</div>
-      <div v-for="(item, index) in [...injectData[props.field].keys()]"
-           class="code-card-title p-x-1.5 cursor-pointer box-border border-r-1px border-r-solid border-color-[#444] relative"
-           :class="[
-          index === 0 && 'border-l-1px border-l-solid border-l-color-[#444]',
-          activeTabs === item && 'code-card-title-active'
-        ]" @click="handleChangeActiveTabs(item)" @dblclick="handleChangeTitleStatus(index)">
-        <input v-if="isModifyTitleIndex === index" :value="item" @blur="handleChangeFileTitle(item,$event)" />
-        <template v-else>
-          {{ item }}
-        </template>
+    <div class="flex">
+      <div class="bg-#222222 text-3.5 leading-8 flex items-center overflow-x-auto">
+        <div class="code-card-add-button p-x-2 cursor-pointer" v-if="addButton" @click="handleAdd"> +</div>
+        <div v-for="(item, index) in [...injectData[props.field].value.keys()]"
+          class="code-card-title p-x-1.5 cursor-pointer box-border border-r-1px border-r-solid border-color-[#444] relative"
+          :class="[
+            index === 0 && 'border-l-1px border-l-solid border-l-color-[#444]',
+            activeTabs === item && 'code-card-title-active'
+          ]" @click="handleChangeActiveTabs(item)" @dblclick="handleChangeTitleStatus(index, item)">
+          <input v-if="isModifyTitleIndex === index" :value="item" @blur="handleChangeFileTitle(item, $event)" />
+          <template v-else>
+
+            <div>
+              {{ item }}
+              <button
+                class="color-inherit bg-transparent border-0 m-l-1 hover:bg-#707070 hover:color-#eee p-x-1 rounded-2px cursor-pointer transition"
+                @click="removeTitle(item)" v-if="index > 0 && !disabledTitle.includes(item)">×</button>
+            </div>
+
+          </template>
+        </div>
       </div>
+
     </div>
     <MonacoEditor ref="monacoEditorRef" class="flex-1" :language="language"
-                  @update:modelValue="handleChangeScriptModelValue" />
+      @update:modelValue="handleChangeScriptModelValue" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { MonacoEditor } from '../monaco-editor'
-import { inject, watch, watchEffect } from 'vue'
-import { PLAYGROUND_KEY } from '~/constants'
+import { inject, watch } from 'vue';
+import { PLAYGROUND_KEY } from '~/constants';
+import { MonacoEditor } from '../monaco-editor';
 
 interface Props {
   field: string
   activeTabs: string
   addButton?: boolean
   language: string
+  disabledTitle?: Array<string>
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  addButton: false
+  addButton: false,
+  disabledTitle: () => []
 })
+
 const injectData = inject(PLAYGROUND_KEY, {
-  [props.field]: new Map()
+  [props.field]: ref(new Map())
 })
 
 const monacoEditorRef = ref()
 
-watch(() => props.activeTabs, activeTabs => {
+watch(() => props.activeTabs, () => {
   if (monacoEditorRef.value) {
-    const value = injectData[props.field].get(props.activeTabs) || ''
+    const value = injectData[props.field].value.get(props.activeTabs) || ''
     monacoEditorRef.value.updateMonacoValue(value)
   }
 })
 
 
-const emits = defineEmits(['update:activeTabs', 'add', 'change'])
+const emits = defineEmits(['update:activeTabs', 'add', 'change', 'remove'])
 const handleChangeActiveTabs = (activeName: string) => {
   emits('update:activeTabs', activeName)
 }
@@ -59,31 +72,40 @@ const handleAdd = () => {
 }
 
 const isModifyTitleIndex = ref<number | null>(null)
-const handleChangeTitleStatus = (index: number) => {
-  if (index === 0) return
+const handleChangeTitleStatus = (index: number, title: string) => {
+  if (index === 0 || props.disabledTitle.includes(title)) return
   isModifyTitleIndex.value = index
 }
 const handleChangeFileTitle = (fileTitle: string, evt: FocusEvent) => {
   const map = injectData[props.field]
-  const value = map.get(fileTitle)
-  map.delete(fileTitle)
+  const value = map.value.get(fileTitle)
+  map.value.delete(fileTitle)
   const newFileName = (evt.target as HTMLInputElement).value
-  map.set(newFileName, value)
+  map.value.set(newFileName, value)
   if (props.activeTabs === fileTitle) {
     emits('update:activeTabs', newFileName)
   }
-
   isModifyTitleIndex.value = null
 }
+
 const handleChangeScriptModelValue = (value: string) => {
   const map = injectData[props.field]
-  map.set(props.activeTabs, value)
-  emits('change')
+  const oldValue = map.value.get(props.activeTabs)
+  if (oldValue !== value) {
+    map.value.set(props.activeTabs, value)
+    emits('change')
+  }
+}
+
+const removeTitle = (title: string) => {
+  emits('remove', title)
 }
 </script>
 
 <style lang="scss">
 .code-card-title {
+  white-space: nowrap;
+
   &::after {
     content: '';
     position: absolute;
