@@ -1,21 +1,28 @@
 {
-  "name": "nuxt-app",
-  "private": true,
+  "name": "html-playground",
   "type": "module",
+  "author": "Carl Chen",
+  "license": "MIT",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "test": "vitest",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "format": "prettier --write ."
   },
   "dependencies": {
+    "@cc-heart/eslint-config": "^2.0.2",
     "@cc-heart/ui-demi": "^0.5.3",
     "@cc-heart/utils": "^5.1.1",
     "@unocss/nuxt": "^0.59.4",
+    "eslint": "^9.1.1",
     "monaco-editor": "^0.48.0",
     "nuxt": "^3.11.2",
+    "prettier": "^3.2.5",
     "unocss": "^0.59.4",
+    "vitest": "^1.5.2",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },
