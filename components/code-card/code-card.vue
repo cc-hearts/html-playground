@@ -25,7 +25,7 @@
         >
           <input
             v-if="isModifyTitleIndex === index"
-            class="bg-transparent border-none outline-none color-inherit border-b	border-b-solid border-b-[#444]"
+            class="bg-transparent border-none outline-none color-inherit border-b border-b-solid border-b-[#444]"
             :value="item"
             @blur="handleChangeFileTitle(item, $event)"
             v-focus

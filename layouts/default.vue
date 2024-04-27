@@ -120,9 +120,12 @@ const lazyWatchScriptModulesCompile = defineDebounceFn(async () => {
   lazyCompileBase64()
 })
 
-watch(() => scriptModules.value, () => {
-  lazyWatchScriptModulesCompile()
-})
+watch(
+  () => scriptModules.value,
+  () => {
+    lazyWatchScriptModulesCompile()
+  },
+)
 
 let scriptModuleCount = 0
 const handleAddScriptModules = () => {
