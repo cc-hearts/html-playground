@@ -1,7 +1,8 @@
 import * as monaco from 'monaco-editor'
 
-export function setupAutoTagClose(monacoInstance: monaco.editor.IStandaloneCodeEditor) {
-
+export function setupAutoTagClose(
+  monacoInstance: monaco.editor.IStandaloneCodeEditor,
+) {
   const model = monacoInstance.getModel()
   if (model?.getLanguageId() === 'html') {
     monacoInstance.onKeyUp((event) => {
@@ -15,7 +16,7 @@ export function setupAutoTagClose(monacoInstance: monaco.editor.IStandaloneCodeE
             startLineNumber: 1,
             startColumn: 1,
             endLineNumber: selection.endLineNumber,
-            endColumn: selection.endColumn
+            endColumn: selection.endColumn,
           })
 
           const matcher = contentBeforeChange.match(/<([^<]*?)>$/)
@@ -25,9 +26,9 @@ export function setupAutoTagClose(monacoInstance: monaco.editor.IStandaloneCodeE
                 startLineNumber: selection.endLineNumber,
                 startColumn: selection.endColumn + 1,
                 endLineNumber: selection.endLineNumber,
-                endColumn: selection.endColumn + 1
+                endColumn: selection.endColumn + 1,
               },
-              text: `</${matcher[1]}>`
+              text: `</${matcher[1]}>`,
             })
 
             newSelections.push(
@@ -35,8 +36,8 @@ export function setupAutoTagClose(monacoInstance: monaco.editor.IStandaloneCodeE
                 selection.endLineNumber,
                 selection.endColumn, // 设置光标位置在闭合标签内部
                 selection.endLineNumber,
-                selection.endColumn
-              )
+                selection.endColumn,
+              ),
             )
           }
         }
@@ -47,5 +48,4 @@ export function setupAutoTagClose(monacoInstance: monaco.editor.IStandaloneCodeE
       }
     })
   }
-
 }

@@ -1,76 +1,108 @@
 <template>
   <section class="w-full h-full flex flex-col">
     <!-- header -->
-    <div class="flex items-center p-x-4 border-b-1px border-b-solid border-b-#999 h-[var(--header-height)]">
+    <div
+      class="flex items-center p-x-4 border-b-1px border-b-solid border-b-#999 h-[var(--header-height)]"
+    >
       <h1 class="text-4 font-500">Html Playground</h1>
     </div>
 
     <!-- playground -->
     <ClientOnly fallback-tag="div">
-      <template #feedback>
-        loading....
-      </template>
+      <template #feedback> loading.... </template>
 
       <div class="flex-1 overflow-hidden">
         <Splitpanes>
           <Pane>
             <Splitpanes horizontal>
               <Pane>
-                <CodeCard ref="htmlRef" language="html" field="htmlModules" v-model:active-tabs="activeHtmlActiveTab"
-                  @change="lazyCompileBase64" />
+                <CodeCard
+                  v-model:model-value="htmlModules"
+                  ref="htmlRef"
+                  language="html"
+                  v-model:active-tabs="activeHtmlActiveTab"
+                  @change="lazyCompileBase64"
+                />
               </Pane>
               <Pane>
                 <div class="h-full w-full border">
-                  <CodeCard ref="scriptRef" :language="activeScriptActiveTab === importMapTitle ? 'json' : 'javascript'"
-                    add-button field="scriptModules" v-model:active-tabs="activeScriptActiveTab"
-                    @add="handleAddScriptModules" @change="lazyWatchScriptModulesCompile"
-                    :disabledTitle="[importMapTitle]" @remove="handleRemoveScriptModules">
-
+                  <CodeCard
+                    v-model:model-value="scriptModules"
+                    ref="scriptRef"
+                    :language="
+                      activeScriptActiveTab === importMapTitle
+                        ? 'json'
+                        : 'javascript'
+                    "
+                    add-button
+                    v-model:active-tabs="activeScriptActiveTab"
+                    @add="handleAddScriptModules"
+                    :disabledTitle="[importMapTitle]"
+                    @remove="handleRemoveScriptModules"
+                  >
                   </CodeCard>
                 </div>
               </Pane>
               <Pane>
                 <div class="h-full w-full">
-                  <CodeCard language="css" ref="cssRef" field="styleModules" v-model:active-tabs="activeStyleActiveTab"
-                    @change="lazyCompileBase64" />
+                  <CodeCard
+                    v-model="styleModules"
+                    language="css"
+                    ref="cssRef"
+                    v-model:active-tabs="activeStyleActiveTab"
+                    @change="lazyCompileBase64"
+                  />
                 </div>
               </Pane>
             </Splitpanes>
           </Pane>
           <Pane>
             <div class="h-full">
-              <Preview :entry="entry" :compiled-module="compiledScriptModule"
-                :html-inner="htmlModules[activeHtmlActiveTab]" :importMap="scriptModules[importMapTitle] || ''"
-                :css-inner="styleModules[activeStyleActiveTab]" />
+              <Preview
+                :entry="entry"
+                :compiled-module="compiledScriptModule"
+                :html-inner="htmlModules[activeHtmlActiveTab]"
+                :importMap="scriptModules[importMapTitle] || ''"
+                :css-inner="styleModules[activeStyleActiveTab]"
+              />
             </div>
           </Pane>
         </Splitpanes>
       </div>
-
     </ClientOnly>
   </section>
 </template>
 
 <script setup lang="ts">
-import { defineDebounceFn, mulSplit } from '@cc-heart/utils';
-import { Pane, Splitpanes } from 'splitpanes';
-import 'splitpanes/dist/splitpanes.css';
-import CodeCard from '~/components/code-card/code-card.vue';
-import Preview from '~/components/preview/preview.vue';
-import { PLAYGROUND_KEY } from '~/constants';
+import { defineDebounceFn, mulSplit } from '@cc-heart/utils'
+import { Pane, Splitpanes } from 'splitpanes'
+import 'splitpanes/dist/splitpanes.css'
+import CodeCard from '~/components/code-card/code-card.vue'
+import Preview from '~/components/preview/preview.vue'
 
 const defineModulesFactory = (initialActiveTabs: string) => {
-  const modules = ref({} as Record<string, string>);
+  const modules = ref({} as Record<string, string>)
   const activeTabs = ref(initialActiveTabs)
   modules.value[activeTabs.value] = ''
   const compRef = ref()
   return { modules, activeTabs, compRef }
 }
 const entry = 'index.js'
-const { modules: htmlModules, activeTabs: activeHtmlActiveTab, compRef: htmlRef } = defineModulesFactory('index.html')
-const { modules: styleModules, activeTabs: activeStyleActiveTab, compRef: scriptRef } = defineModulesFactory('index.css')
-
-const { modules: scriptModules, activeTabs: activeScriptActiveTab, compRef: cssRef } = defineModulesFactory(entry)
+const {
+  modules: htmlModules,
+  activeTabs: activeHtmlActiveTab,
+  compRef: htmlRef,
+} = defineModulesFactory('index.html')
+const {
+  modules: styleModules,
+  activeTabs: activeStyleActiveTab,
+  compRef: scriptRef,
+} = defineModulesFactory('index.css')
+const {
+  modules: scriptModules,
+  activeTabs: activeScriptActiveTab,
+  compRef: cssRef,
+} = defineModulesFactory(entry)
 const importMapTitle = 'import map'
 scriptModules.value[importMapTitle] = `\n
 {
@@ -88,9 +120,11 @@ const lazyWatchScriptModulesCompile = defineDebounceFn(async () => {
   lazyCompileBase64()
 })
 
+watch(() => scriptModules.value, () => {
+  lazyWatchScriptModulesCompile()
+})
 
 let scriptModuleCount = 0
-const scriptModuleKeys = ref(0)
 const handleAddScriptModules = () => {
   let key = `script-${scriptModuleCount++}.js`
   const keys = Object.keys(scriptModules.value)
@@ -101,17 +135,12 @@ const handleAddScriptModules = () => {
   activeScriptActiveTab.value = key
 }
 const handleRemoveScriptModules = (title: string) => {
-  delete scriptModules.value[title]
-  scriptModuleKeys.value++
   if (title === activeScriptActiveTab.value) {
     activeScriptActiveTab.value = entry
   }
+  delete scriptModules.value[title]
+  lazyWatchScriptModulesCompile()
 }
-provide(PLAYGROUND_KEY, {
-  htmlModules,
-  styleModules,
-  scriptModules
-})
 
 // ========== compile bas64 ========
 const splitCode = '__HTML-PLAYGROUND__'
@@ -153,8 +182,9 @@ const deCodeBase64ToModules = () => {
         scriptModules.value[key] = value
       }
     })
-    scriptRef.value?.setValueToMonaco(scriptModules.value[activeScriptActiveTab.value] || '')
-
+    scriptRef.value?.setValueToMonaco(
+      scriptModules.value[activeScriptActiveTab.value] || '',
+    )
     lazyWatchScriptModulesCompile()
   }
 }
@@ -165,5 +195,3 @@ onMounted(() => {
   })
 })
 </script>
-
-<style></style>

@@ -5,8 +5,8 @@
 </template>
 <script lang="ts" setup>
 interface Props {
-  compiledModule: Record<string, string>,
-  htmlInner?: string,
+  compiledModule: Record<string, string>
+  htmlInner?: string
   cssInner?: string
   entry: string
   importMap: string
@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
   htmlInner: '',
   cssInner: '',
   entry: 'index.js',
-  importMap: ''
+  importMap: '',
 })
 
 const importMapFields = computed(() => {

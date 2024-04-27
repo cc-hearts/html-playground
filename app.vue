@@ -10,7 +10,6 @@
   padding: 0;
 }
 
-
 body,
 html,
 #__nuxt {
@@ -22,7 +21,6 @@ body {
   background: var(--global-bg-color);
   color: var(--text-color);
 }
-
 
 iframe {
   border: none;
@@ -38,7 +36,6 @@ iframe {
   border-top: 1px solid var(--divider-color);
   border-bottom: 1px solid var(--divider-color);
 
-
   &::after,
   &::before {
     content: '';
@@ -49,7 +46,7 @@ iframe {
 }
 
 .splitpanes--vertical {
-  &>.splitpanes__splitter {
+  & > .splitpanes__splitter {
     flex-direction: row;
     padding: 0 4px;
     border-left: 1px solid var(--divider-color);

@@ -25,7 +25,7 @@ const getValue = () => {
   return monacoEditorInstance?.getValue()
 }
 const emits = defineEmits(['update:modelValue'])
-const debounceUpdateModelValue = defineDebounceFn(event => {
+const debounceUpdateModelValue = defineDebounceFn((event) => {
   emits('update:modelValue', getValue())
 })
 
@@ -37,27 +37,30 @@ onMounted(() => {
     theme: props.theme,
     scrollbar: {
       verticalScrollbarSize: 8,
-      horizontalScrollbarSize: 8
+      horizontalScrollbarSize: 8,
     },
     minimap: {
-      enabled: props.minimapEnabled
+      enabled: props.minimapEnabled,
     },
     automaticLayout: true,
-    renderValidationDecorations: 'on'
+    renderValidationDecorations: 'on',
   })
 
   setupAutoTagClose(monacoEditorInstance)
   monacoEditorInstance.onDidChangeModelContent(debounceUpdateModelValue)
 })
 
-watch(() => props.language, () => {
-  if (monacoEditorInstance) {
-    editor.setModelLanguage(monacoEditorInstance.getModel()!, props.language);
-  }
-})
+watch(
+  () => props.language,
+  () => {
+    if (monacoEditorInstance) {
+      editor.setModelLanguage(monacoEditorInstance.getModel()!, props.language)
+    }
+  },
+)
 
 defineExpose({
   updateMonacoValue,
-  getValue
+  getValue,
 })
 </script>
