@@ -27,10 +27,10 @@
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.4",
-    "@babel/generator": "^7.24.4",
+    "@babel/core": "^7.24.5",
+    "@babel/standalone": "^7.24.5",
     "@types/babel__core": "^7.20.5",
-    "@types/babel__generator": "^7.6.8",
+    "@types/babel__standalone": "^7.1.7",
     "@types/splitpanes": "^2.2.6",
     "sass": "^1.75.0",
     "splitpanes": "^3.1.5"
