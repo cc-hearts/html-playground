@@ -159,7 +159,7 @@ const compilerBase64 = () => {
   for (const key of keys) {
     compileStr += `${key}:${scriptModules.value[key]}` + splitCode
   }
-  return btoa(compileStr)
+  return btoa(encodeURIComponent(compileStr))
 }
 
 function setBase64ForLocation(base64: string) {
@@ -173,7 +173,7 @@ const lazyCompileBase64 = defineDebounceFn(() => {
 const deCodeBase64ToModules = () => {
   const matcher = location.hash.match(/[^#].*/g)?.[0]
   if (matcher) {
-    const str = atob(matcher)
+    const str = decodeURIComponent(atob(matcher))
     const modules = str.split(new RegExp(splitCode, 'g')).filter(Boolean)
     modules.forEach((module) => {
       let [key, value] = mulSplit(module, ':', 1)
