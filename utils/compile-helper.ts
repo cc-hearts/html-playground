@@ -50,17 +50,17 @@ export function transform(code: string, fileName = '') {
           return acc
         }, {})
         const importVariable: string[] = []
-          ;[defaultKey, namespaceKey].forEach((key) => {
-            if (__import[key] !== void 0) {
-              let prefix = ''
-              if (key === defaultKey) {
-                prefix = 'default : '
-              } else {
-                isExistsNamespaceKey = true
-              }
-              importVariable.push(`${prefix} ${Reflect.get(__import, key)}`)
+        ;[defaultKey, namespaceKey].forEach((key) => {
+          if (__import[key] !== void 0) {
+            let prefix = ''
+            if (key === defaultKey) {
+              prefix = 'default : '
+            } else {
+              isExistsNamespaceKey = true
             }
-          })
+            importVariable.push(`${prefix} ${Reflect.get(__import, key)}`)
+          }
+        })
         Object.entries(__import).reduce<string[]>((acc, cur) => {
           const [, value] = cur
           acc.push(value as string)
@@ -70,7 +70,7 @@ export function transform(code: string, fileName = '') {
           ? importVariable.join(',')
           : `{${importVariable.join(',')}}`
         const new_ast = template.ast(
-          `const ${__importVariable} = await __require("${importStringLiteral}");`,
+          `const ${__importVariable} = await __require("${importStringLiteral}");`
         )
         // @ts-ignore
         if (new_ast) path.replaceWith(new_ast)
@@ -108,14 +108,14 @@ export function transform(code: string, fileName = '') {
           if (path.node.source) {
             const modulePath = path.node.source.value
             const newAst = template.ast(
-              `const __module_import_${count} = await __require("${modulePath}");`,
+              `const __module_import_${count} = await __require("${modulePath}");`
             )
             exportName.forEach((target) => {
               const [localName, exportedName] = target
               const new_ast = newExportAst(
                 fileName,
                 exportedName,
-                `__module_import_${count}.${localName}`,
+                `__module_import_${count}.${localName}`
               )
               path.insertAfter(new_ast)
             })
@@ -162,7 +162,7 @@ export function transform(code: string, fileName = '') {
         const new_ast = newExportAst(
           fileName,
           'default',
-          name || generate(path.node.declaration)?.code,
+          name || generate(path.node.declaration)?.code
         )
         if (name) {
           // @ts-ignore
@@ -182,7 +182,7 @@ export function transform(code: string, fileName = '') {
       ExportAllDeclaration(path: NodePath<types.ExportAllDeclaration>) {
         const modulePath = path.node.source.value
         const newAst = template.ast(
-          `const __module_import = await __require("${modulePath}");\nObject.keys(__module_import).forEach(key => {\n  if (key !== "default") {\n    __exports("", key, __module_import[key]);\n  }\n});`,
+          `const __module_import = await __require("${modulePath}");\nObject.keys(__module_import).forEach(key => {\n  if (key !== "default") {\n    __exports("", key, __module_import[key]);\n  }\n});`
         )
         // @ts-ignore
         path.replaceWithMultiple(newAst)
@@ -193,7 +193,6 @@ export function transform(code: string, fileName = '') {
     return transformFromAst(ast, code, {})?.code
   }
 }
-
 
 export const transFormCode = async (code: Record<string, string>) => {
   return traverseScriptCode(code)

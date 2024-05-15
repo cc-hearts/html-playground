@@ -56,7 +56,7 @@ watch(
     if (monacoEditorInstance) {
       editor.setModelLanguage(monacoEditorInstance.getModel()!, props.language)
     }
-  },
+  }
 )
 
 defineExpose({

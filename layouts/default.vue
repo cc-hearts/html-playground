@@ -12,7 +12,10 @@
       <template #feedback> loading.... </template>
 
       <div class="flex-1 overflow-hidden">
-        <Splitpanes>
+        <Splitpanes
+          @resize="handleToggleDraggableStatus(true)"
+          @resized="handleToggleDraggableStatus(false)"
+        >
           <Pane>
             <Splitpanes horizontal>
               <Pane>
@@ -57,13 +60,14 @@
             </Splitpanes>
           </Pane>
           <Pane>
-            <div class="h-full">
+            <div class="h-full w-full">
               <Preview
                 :entry="entry"
                 :compiled-module="compiledScriptModule"
                 :html-inner="htmlModules[activeHtmlActiveTab]"
                 :importMap="scriptModules[importMapTitle] || ''"
                 :css-inner="styleModules[activeStyleActiveTab]"
+                :isDraggable="isDraggable"
               />
             </div>
           </Pane>
@@ -124,7 +128,7 @@ watch(
   () => scriptModules.value,
   () => {
     lazyWatchScriptModulesCompile()
-  },
+  }
 )
 
 let scriptModuleCount = 0
@@ -186,10 +190,15 @@ const deCodeBase64ToModules = () => {
       }
     })
     scriptRef.value?.setValueToMonaco(
-      scriptModules.value[activeScriptActiveTab.value] || '',
+      scriptModules.value[activeScriptActiveTab.value] || ''
     )
     lazyWatchScriptModulesCompile()
   }
+}
+
+const isDraggable = ref(false)
+const handleToggleDraggableStatus = (bool: boolean) => {
+  isDraggable.value = bool
 }
 
 onMounted(() => {

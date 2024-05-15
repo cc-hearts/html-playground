@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor'
 
 export function setupAutoTagClose(
-  monacoInstance: monaco.editor.IStandaloneCodeEditor,
+  monacoInstance: monaco.editor.IStandaloneCodeEditor
 ) {
   const model = monacoInstance.getModel()
   if (model?.getLanguageId() === 'html') {
@@ -36,8 +36,8 @@ export function setupAutoTagClose(
                 selection.endLineNumber,
                 selection.endColumn, // 设置光标位置在闭合标签内部
                 selection.endLineNumber,
-                selection.endColumn,
-              ),
+                selection.endColumn
+              )
             )
           }
         }

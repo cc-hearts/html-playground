@@ -1,6 +1,11 @@
 <template>
   <div class="preview w-full h-full box-border">
-    <iframe sandbox="allow-scripts" class="w-full h-full" :srcdoc="srcDoc" />
+    <iframe
+      sandbox="allow-scripts"
+      class="w-full h-full"
+      :srcdoc="srcDoc"
+      :style="{ 'pointer-events': isDraggable ? 'none' : 'inherit' }"
+    />
   </div>
 </template>
 <script lang="ts" setup>
@@ -10,6 +15,7 @@ interface Props {
   cssInner?: string
   entry: string
   importMap: string
+  isDraggable: boolean
 }
 
 const srcDoc = ref('')

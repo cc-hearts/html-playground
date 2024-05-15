@@ -87,7 +87,7 @@ watch(
       const value = props.modelValue[activeTabs] || ''
       monacoEditorRef.value.updateMonacoValue(value)
     }
-  },
+  }
 )
 
 const emits = defineEmits([
@@ -117,7 +117,7 @@ const handleChangeFileTitle = (fileTitle: string, evt: FocusEvent) => {
   if (fileTitle === newFileName) return
 
   const filenameList = Object.keys(props.modelValue).filter(
-    (title) => title !== fileTitle,
+    (title) => title !== fileTitle
   )
   const newModelValue = filenameList.reduce((acc, key) => {
     Reflect.set(acc, key, props.modelValue[key])
