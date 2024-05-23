@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { transform } from '../server/utils/helper'
+import { transform } from '../utils/compile-helper'
 describe('compile-helper module', () => {
   it('Compile a named export', () => {
     expect(transform(`const a = 1; export { a }`)).toBe(
