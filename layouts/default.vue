@@ -2,9 +2,13 @@
   <section class="w-full h-full flex flex-col">
     <!-- header -->
     <div
-      class="flex items-center p-x-4 border-b-1px border-b-solid border-b-#999 h-[var(--header-height)]"
-    >
+      class="flex items-center justify-between p-x-4 border-b-1px border-b-solid border-b-#999 h-[var(--header-height)]">
       <h1 class="text-4 font-500">Html Playground</h1>
+
+      <div class="text-6 flex items-center gap-4 color-#eee">
+        <CopyIcon class="cursor-pointer hover:color-#fff transition-all" @click="copyCode" />
+        <GithubIcon class="cursor-pointer hover:color-#fff transition-all" @click="toGithub" />
+      </div>
     </div>
 
     <!-- playground -->
@@ -12,63 +16,36 @@
       <template #feedback> loading.... </template>
 
       <div class="flex-1 overflow-hidden">
-        <Splitpanes
-          @resize="handleToggleDraggableStatus(true)"
-          @resized="handleToggleDraggableStatus(false)"
-        >
+        <Splitpanes @resize="handleToggleDraggableStatus(true)" @resized="handleToggleDraggableStatus(false)">
           <Pane>
             <Splitpanes horizontal>
               <Pane>
-                <CodeCard
-                  v-model:model-value="htmlModules"
-                  ref="htmlRef"
-                  language="html"
-                  v-model:active-tabs="activeHtmlActiveTab"
-                  @change="lazyCompileBase64"
-                />
+                <CodeCard v-model:model-value="htmlModules" ref="htmlRef" language="html"
+                  v-model:active-tabs="activeHtmlActiveTab" @change="lazyCompileBase64" />
               </Pane>
               <Pane>
                 <div class="h-full w-full border">
-                  <CodeCard
-                    v-model:model-value="scriptModules"
-                    ref="scriptRef"
-                    :language="
-                      activeScriptActiveTab === importMapTitle
-                        ? 'json'
-                        : 'javascript'
-                    "
-                    add-button
-                    v-model:active-tabs="activeScriptActiveTab"
-                    @add="handleAddScriptModules"
-                    :disabledTitle="[importMapTitle]"
-                    @remove="handleRemoveScriptModules"
-                  >
+                  <CodeCard v-model:model-value="scriptModules" ref="scriptRef" :language="activeScriptActiveTab === importMapTitle
+                      ? 'json'
+                      : 'javascript'
+                    " add-button v-model:active-tabs="activeScriptActiveTab" @add="handleAddScriptModules"
+                    :disabledTitle="[importMapTitle]" @remove="handleRemoveScriptModules">
                   </CodeCard>
                 </div>
               </Pane>
               <Pane>
                 <div class="h-full w-full">
-                  <CodeCard
-                    v-model="styleModules"
-                    language="css"
-                    ref="cssRef"
-                    v-model:active-tabs="activeStyleActiveTab"
-                    @change="lazyCompileBase64"
-                  />
+                  <CodeCard v-model="styleModules" language="css" ref="cssRef"
+                    v-model:active-tabs="activeStyleActiveTab" @change="lazyCompileBase64" />
                 </div>
               </Pane>
             </Splitpanes>
           </Pane>
           <Pane>
             <div class="h-full w-full">
-              <Preview
-                :entry="entry"
-                :compiled-module="compiledScriptModule"
-                :html-inner="htmlModules[activeHtmlActiveTab]"
-                :importMap="scriptModules[importMapTitle] || ''"
-                :css-inner="styleModules[activeStyleActiveTab]"
-                :isDraggable="isDraggable"
-              />
+              <Preview :entry="entry" :compiled-module="compiledScriptModule"
+                :html-inner="htmlModules[activeHtmlActiveTab]" :importMap="scriptModules[importMapTitle] || ''"
+                :css-inner="styleModules[activeStyleActiveTab]" :isDraggable="isDraggable" />
             </div>
           </Pane>
         </Splitpanes>
@@ -83,6 +60,8 @@ import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 import CodeCard from '~/components/code-card/code-card.vue'
 import Preview from '~/components/preview/preview.vue'
+import GithubIcon from '~/icons/github-icon.vue'
+import CopyIcon from '~/icons/copy-icon.vue'
 
 const defineModulesFactory = (initialActiveTabs: string) => {
   const modules = ref({} as Record<string, string>)
@@ -206,4 +185,12 @@ onMounted(() => {
     deCodeBase64ToModules()
   })
 })
+
+const toGithub = () =>
+  window.open('https://github.com/cc-hearts/html-playground.git')
+
+
+const copyCode = () => {
+  copyText(window.location.href)
+}
 </script>

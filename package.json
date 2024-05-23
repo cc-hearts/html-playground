@@ -15,7 +15,6 @@
   "dependencies": {
     "@cc-heart/eslint-config": "^2.0.2",
     "@cc-heart/ui-demi": "^0.5.3",
-    "@cc-heart/utils": "^5.1.1",
     "@unocss/nuxt": "^0.59.4",
     "eslint": "^9.1.1",
     "monaco-editor": "^0.48.0",
@@ -29,6 +28,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/standalone": "^7.24.5",
+    "@cc-heart/utils-client": "^2.0.2",
     "@types/babel__core": "^7.20.5",
     "@types/babel__standalone": "^7.1.7",
     "@types/splitpanes": "^2.2.6",
