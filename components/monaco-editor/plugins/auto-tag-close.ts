@@ -19,7 +19,7 @@ export function setupAutoTagClose(
             endColumn: selection.endColumn,
           })
 
-          const matcher = contentBeforeChange.match(/<([^<]*?)>$/)
+          const matcher = contentBeforeChange.match(/<([^<\/]*?)>$/)
           if (matcher && matcher.length > 0) {
             edits.push({
               range: {
