@@ -5,7 +5,7 @@
       class="flex items-center justify-between p-x-4 border-b-1px border-b-solid border-b-#999 h-[var(--header-height)]">
       <h1 class="text-4 font-500">Html Playground</h1>
 
-      <div class="text-6 flex items-center gap-4 color-#eee">
+      <div class="text-5 flex items-center gap-4 color-#ddd">
         <CopyIcon class="cursor-pointer hover:color-#fff transition-all" @click="copyCode" />
         <GithubIcon class="cursor-pointer hover:color-#fff transition-all" @click="toGithub" />
       </div>
