@@ -1,7 +1,3 @@
-<template>
-  <div ref="monacoRef"></div>
-</template>
-
 <script lang="ts" setup>
 import { MonacoEditorProps } from './helper'
 import { editor } from 'monaco-editor'
@@ -10,6 +6,7 @@ import { setupAutoTagClose } from '~/components/monaco-editor/plugins/auto-tag-c
 
 const props = defineProps(MonacoEditorProps)
 
+const emits = defineEmits(['update:modelValue'])
 const monacoRef = ref()
 let monacoEditorInstance: editor.IStandaloneCodeEditor | null = null
 
@@ -24,7 +21,6 @@ watchEffect(() => {
 const getValue = () => {
   return monacoEditorInstance?.getValue()
 }
-const emits = defineEmits(['update:modelValue'])
 const debounceUpdateModelValue = defineDebounceFn((event) => {
   emits('update:modelValue', getValue())
 })
@@ -64,3 +60,7 @@ defineExpose({
   getValue,
 })
 </script>
+
+<template>
+  <div ref="monacoRef"></div>
+</template>

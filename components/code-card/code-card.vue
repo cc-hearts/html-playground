@@ -1,59 +1,3 @@
-<template>
-  <div class="h-full w-full flex flex-col">
-    <!-- tabs -->
-    <div class="flex">
-      <div
-        class="bg-#222222 text-3.5 leading-8 flex items-center overflow-x-auto"
-      >
-        <div
-          class="code-card-add-button p-x-2 cursor-pointer"
-          v-if="addButton"
-          @click="handleAdd"
-        >
-          +
-        </div>
-        <div
-          v-for="(item, index) in calcTitleList"
-          :key="index"
-          class="code-card-title p-x-1.5 cursor-pointer box-border border-r-1px border-r-solid border-color-[#444] relative"
-          :class="[
-            index === 0 && 'border-l-1px border-l-solid border-l-color-[#444]',
-            activeTabs === item && 'code-card-title-active',
-          ]"
-          @click="handleChangeActiveTabs(item)"
-          @dblclick="handleChangeTitleStatus(index, item)"
-        >
-          <input
-            v-if="isModifyTitleIndex === index"
-            class="bg-transparent border-none outline-none color-inherit border-b border-b-solid border-b-[#444]"
-            :value="item"
-            @blur="handleChangeFileTitle(item, $event)"
-            v-focus
-          />
-          <template v-else>
-            <div>
-              {{ item }}
-              <button
-                class="color-inherit bg-transparent border-0 m-l-1 hover:bg-#707070 hover:color-#eee p-x-1 rounded-2px cursor-pointer transition"
-                @click.stop="removeTitle(item)"
-                v-if="index > 0 && !disabledTitle.includes(item)"
-              >
-                ×
-              </button>
-            </div>
-          </template>
-        </div>
-      </div>
-    </div>
-    <MonacoEditor
-      ref="monacoEditorRef"
-      class="flex-1"
-      :language="language"
-      @update:modelValue="handleChangeScriptModelValue"
-    />
-  </div>
-</template>
-
 <script setup lang="ts">
 import { hasOwn } from '@cc-heart/utils'
 import { watch } from 'vue'
@@ -73,6 +17,14 @@ const props = withDefaults(defineProps<Props>(), {
   modules: () => ({}),
 })
 
+const emits = defineEmits([
+  'update:activeTabs',
+  'add',
+  'change',
+  'remove',
+  'update:modelValue',
+])
+
 const vFocus = {
   mounted: (el: HTMLElement) => el.focus?.(),
 }
@@ -90,13 +42,6 @@ watch(
   }
 )
 
-const emits = defineEmits([
-  'update:activeTabs',
-  'add',
-  'change',
-  'remove',
-  'update:modelValue',
-])
 const handleChangeActiveTabs = (activeName: string) => {
   emits('update:activeTabs', activeName)
 }
@@ -154,6 +99,62 @@ defineExpose({
   setValueToMonaco,
 })
 </script>
+
+<template>
+  <div class="h-full w-full flex flex-col">
+    <!-- tabs -->
+    <div class="flex">
+      <div
+        class="bg-#222222 text-3.5 leading-8 flex items-center overflow-x-auto"
+      >
+        <div
+          v-if="addButton"
+          class="code-card-add-button p-x-2 cursor-pointer"
+          @click="handleAdd"
+        >
+          +
+        </div>
+        <div
+          v-for="(item, index) in calcTitleList"
+          :key="index"
+          class="code-card-title p-x-1.5 cursor-pointer box-border border-r-1px border-r-solid border-color-[#444] relative"
+          :class="[
+            index === 0 && 'border-l-1px border-l-solid border-l-color-[#444]',
+            activeTabs === item && 'code-card-title-active',
+          ]"
+          @click="handleChangeActiveTabs(item)"
+          @dblclick="handleChangeTitleStatus(index, item)"
+        >
+          <input
+            v-if="isModifyTitleIndex === index"
+            v-focus
+            class="bg-transparent border-none outline-none color-inherit border-b border-b-solid border-b-[#444]"
+            :value="item"
+            @blur="handleChangeFileTitle(item, $event)"
+          />
+          <template v-else>
+            <div>
+              {{ item }}
+              <button
+                v-if="index > 0 && !disabledTitle.includes(item)"
+                class="color-inherit bg-transparent border-0 m-l-1 hover:bg-#707070 hover:color-#eee p-x-1 rounded-2px cursor-pointer transition"
+                @click.stop="removeTitle(item)"
+              >
+                ×
+              </button>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+    <MonacoEditor
+      ref="monacoEditorRef"
+      class="flex-1"
+      :language="language"
+      @update:model-value="handleChangeScriptModelValue"
+    />
+  </div>
+</template>
 
 <style lang="scss">
 .code-card-title {

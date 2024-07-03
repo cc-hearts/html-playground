@@ -1,5 +1,5 @@
 import type { NodePath, types } from '@babel/core'
-// @ts-ignore
+// @ts-expect-error
 import { packages, transformFromAst } from '@babel/standalone'
 
 const template = packages.template.default
@@ -36,7 +36,7 @@ export function transform(code: string, fileName = '') {
         >((acc, specifiers) => {
           const { type } = specifiers
           const name = specifiers.local.name
-          // @ts-ignore
+          // @ts-expect-error
           const importedName = specifiers.imported?.name || ''
           if (type === 'ImportDefaultSpecifier') {
             Reflect.set(acc, defaultKey, name)
@@ -72,7 +72,7 @@ export function transform(code: string, fileName = '') {
         const new_ast = template.ast(
           `const ${__importVariable} = await __require("${importStringLiteral}");`
         )
-        // @ts-ignore
+        // @ts-expect-error
         if (new_ast) path.replaceWith(new_ast)
       },
       ExportNamedDeclaration(path: NodePath<types.ExportNamedDeclaration>) {
@@ -81,7 +81,7 @@ export function transform(code: string, fileName = '') {
         let name
         switch (path.node.declaration?.type) {
           case 'VariableDeclaration':
-            // @ts-ignore
+            // @ts-expect-error
             name = path.node.declaration.declarations[0].id.name
             break
           case 'FunctionDeclaration':
@@ -92,15 +92,15 @@ export function transform(code: string, fileName = '') {
         }
         if (name) {
           const new_ast = newExportAst(fileName, name, name)
-          //@ts-ignore
+          //@ts-expect-error
           path.replaceWith(declaration)
           path.insertAfter(new_ast)
         } else if (path.node.specifiers && path.node.specifiers.length > 0) {
           const exportName = path.node.specifiers.map((target) => {
             return [
-              // @ts-ignore
+              // @ts-expect-error
               target?.local?.name || target?.exported?.name,
-              // @ts-ignore
+              // @ts-expect-error
               target?.exported?.name,
             ]
           })
@@ -122,30 +122,30 @@ export function transform(code: string, fileName = '') {
             path.replaceWithMultiple(newAst)
             count++
             return
-          } else {
+          } 
             exportName.forEach((target) => {
               const [localName, exportedName] = target
               const new_ast = newExportAst(fileName, exportedName, localName)
               path.insertAfter(new_ast)
             })
-          }
+          
 
           path.remove()
         } else if (path.node.declaration) {
-          // @ts-ignore
+          // @ts-expect-error
           const { declarations } = path.node.declaration
           if (declarations) {
-            // @ts-ignore
+            // @ts-expect-error
             declarations.forEach((declaration) => {
               const { id } = declaration
-              // @ts-ignore
+              // @ts-expect-error
               const exportList =
                 Array.isArray(id.properties) &&
-                // @ts-ignore
+                // @ts-expect-error
                 id.properties.map((property) => {
                   return property.value.name || property.key.name
                 })
-              // @ts-ignore
+              // @ts-expect-error
               exportList.forEach((value) => {
                 const new_ast = newExportAst(fileName, value, value)
                 path.insertAfter(new_ast)
@@ -157,7 +157,7 @@ export function transform(code: string, fileName = '') {
       },
       ExportDefaultDeclaration(path: NodePath<types.ExportDefaultDeclaration>) {
         const declaration = path.node.declaration
-        // @ts-ignore
+        // @ts-expect-error
         const name = declaration?.id?.name || declaration?.name
         const new_ast = newExportAst(
           fileName,
@@ -165,17 +165,17 @@ export function transform(code: string, fileName = '') {
           name || generate(path.node.declaration)?.code
         )
         if (name) {
-          // @ts-ignore
+          // @ts-expect-error
           if (declaration?.id?.name) {
             path.replaceWith(declaration)
           }
           path.insertAfter(new_ast)
-          // @ts-ignore
+          // @ts-expect-error
           if (!declaration?.id?.name) {
             path.remove()
           }
         } else {
-          // @ts-ignore
+          // @ts-expect-error
           path.replaceWith(new_ast)
         }
       },
@@ -184,12 +184,12 @@ export function transform(code: string, fileName = '') {
         const newAst = template.ast(
           `const __module_import = await __require("${modulePath}");\nObject.keys(__module_import).forEach(key => {\n  if (key !== "default") {\n    __exports("", key, __module_import[key]);\n  }\n});`
         )
-        // @ts-ignore
+        // @ts-expect-error
         path.replaceWithMultiple(newAst)
       },
     })
 
-    // @ts-ignore
+    // @ts-expect-error
     return transformFromAst(ast, code, {})?.code
   }
 }

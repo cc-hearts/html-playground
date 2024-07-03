@@ -1,13 +1,3 @@
-<template>
-  <div class="preview w-full h-full box-border">
-    <iframe
-      sandbox="allow-scripts"
-      class="w-full h-full"
-      :srcdoc="srcDoc"
-      :style="{ 'pointer-events': isDraggable ? 'none' : 'inherit' }"
-    />
-  </div>
-</template>
 <script lang="ts" setup>
 interface Props {
   compiledModule: Record<string, string>
@@ -18,14 +8,13 @@ interface Props {
   isDraggable: boolean
 }
 
-const srcDoc = ref('')
 const props = withDefaults(defineProps<Props>(), {
   htmlInner: '',
   cssInner: '',
   entry: 'index.js',
   importMap: '',
 })
-
+const srcDoc = ref('')
 const importMapFields = computed(() => {
   if (!props.importMap) return '[]'
   const imports = JSON.parse(props.importMap)?.imports || {}
@@ -109,4 +98,14 @@ watchEffect(() => {
 `
 })
 </script>
+<template>
+  <div class="preview w-full h-full box-border">
+    <iframe
+      sandbox="allow-scripts"
+      class="w-full h-full"
+      :srcdoc="srcDoc"
+      :style="{ 'pointer-events': isDraggable ? 'none' : 'inherit' }"
+    />
+  </div>
+</template>
 <style lang="scss"></style>

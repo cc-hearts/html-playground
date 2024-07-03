@@ -1,17 +1,17 @@
-// @ts-ignore
+// @ts-expect-error
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-// @ts-ignore
+// @ts-expect-error
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
-// @ts-ignore
+// @ts-expect-error
 import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
-// @ts-ignore
+// @ts-expect-error
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
-// @ts-ignore
+// @ts-expect-error
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 interface MonacoEnvironment {
   baseUrl?: string
-  getWorker?(workerId: string, label: string): Worker
-  getWorkerUrl?(workerId: string, label: string): string
+  getWorker?: (workerId: string, label: string) => Worker
+  getWorkerUrl?: (workerId: string, label: string) => string
 }
 ;(
   globalThis as unknown as {
