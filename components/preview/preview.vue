@@ -39,7 +39,9 @@ watchEffect(() => {
           <link rel="icon" type="image/svg+xml" href="/vite.svg" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <title>test</title>
-          <style>
+
+  <script src="https://cdn.tailwindcss.com"><\/script>
+  <style>
             html,body {
               color: ${getColor()};
               background-color: ${getBackground()};
